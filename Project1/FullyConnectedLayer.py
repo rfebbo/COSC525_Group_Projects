@@ -5,7 +5,7 @@ import neuron
 class FullyConnected:
     #initialize with the number of neurons in the layer, their activation,the input size, the learning rate and a 2d matrix of weights (or else initilize randomly)
     def __init__(self,numOfNeurons, activation, input_num, lr, weights=None):
-        self.neurons = [neuron.Neuron(activation, input_num, lr) for i in range(numOfNeurons)]
+        self.neurons = [neuron.Neuron(activation, input_num, lr, weights) for i in range(numOfNeurons)]
         self.lr = lr
         
         print('constructor') 
