@@ -14,8 +14,8 @@ class FullyConnected:
     #calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
     def calculate(self, input):
         self.out = []
-        for n, i in enumerate(self.neurons):
-            out.append(n.activate(input[i]))
+        for n in (self.neurons):
+            out.append(n.activate(n.calculate(input));
 
         return self.out
         # print('calculate') 
