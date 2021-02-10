@@ -92,6 +92,7 @@ class Neuron:
     def updateweight(self):
         print('updateweight')
         self.weights = self.weights - (self.lr * self.delta);
+        self.bias = self.bias - (self.lr * self.delta);
 
 """
 #A fully connected layer        
