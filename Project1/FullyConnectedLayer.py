@@ -15,7 +15,7 @@ class FullyConnected:
     def calculate(self, input):
         self.out = []
         for n in (self.neurons):
-            out.append(n.activate(n.calculate(input));
+            self.out.append(n.activate(n.calculate(input)))
 
         return self.out
         # print('calculate') 
@@ -27,6 +27,7 @@ class FullyConnected:
     def calcwdeltas(self, wtimesdelta):
         for n, i in enumerate(self.neurons):
             n.calcpartialderivative(wtimesdelta[i])
+            n.updateweight()
         print('calcwdeltas')
            
 
