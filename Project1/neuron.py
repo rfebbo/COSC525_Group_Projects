@@ -29,7 +29,7 @@ class Neuron:
         self.input_num = input_num;
         self.lr = lr;
         # determine weights either randomly or with inputs
-        if (weights == None).all():
+        if weights is None:
            self.weights = np.random.rand(input_num);
            self.bias = float(np.random.rand(1));
         elif len(weights) == input_num + 1:

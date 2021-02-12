@@ -15,11 +15,13 @@ loss:
 #An entire neural network        
 class NeuralNetwork:
     #initialize with the number of layers, number of neurons in each layer (vector), input size, activation (for each layer), the loss function, the learning rate and a 3d matrix of weights weights (or else initialize randomly)
-    def __init__(self,numOfLayers,numOfNeurons, inputSize, activation, loss, lr, weights=None):
+    def __init__(self, numOfLayers, numOfNeurons, inputSize, activation, loss, lr, weights=None):
         self.layers = []
         for i in range(numOfLayers):
-            print("layer ", i, "got weights ", weights[i])
-            self.layers.append(Layers.FullyConnected(numOfNeurons, activation, inputSize, lr, weights[i]))
+            if weights is None:
+                self.layers.append(Layers.FullyConnected(numOfNeurons[i], activation, inputSize, lr))
+            else:
+                self.layers.append(Layers.FullyConnected(numOfNeurons[i], activation, inputSize, lr, weights[i]))
 
         self.loss = loss
         self.activation = activation
@@ -92,7 +94,8 @@ if __name__=="__main__":
         w=np.array([[[.15,.2,.35],[.25,.3,.35]],[[.4,.45,.6],[.5,.55,.6]]])
         x=np.array([0.05,0.1])
         y=np.array([0.01,0.99])
-        n = NeuralNetwork(2, 2, len(x), 1, 0, 0.5, w)
+        num_neurons = [2, 2]
+        n = NeuralNetwork(2, num_neurons, len(x), 1, 0, 0.5, w)
         for i in range(2000):
             yp = n.train(x, y)
             if(i % 100):
@@ -104,4 +107,18 @@ if __name__=="__main__":
         print('learn and')
         
     elif(sys.argv[1]=='xor'):
+        x=[[0, 0], [0, 1], [1, 0], [1, 1]]
+        y=[0, 1, 1, 0]
+        n = NeuralNetwork(2, 2, 2, 1, 0, 0.1)
+
+        for e in range(1000):
+            for i in range(len(x)):
+                yp = n.train(x[i], y[i])
+
+            
+            if(e % 100):
+                print("interation:", i)
+                print("output: ", yp, y)
+                print("Error", n.e_total)
+            
         print('learn xor')
