@@ -62,19 +62,21 @@ class NeuralNetwork:
         # do forward pass
         self.calculate(x)
 
+        # print(self.out[-1])
+        # print(y)
+        # if(len(self.out[-1]) == 1):
+        #     self.out[-1] = float(self.out[-1][0])
+            
+        # print(self.out[-1])
+        # print(y)
         # calculate total error
         self.e_total = self.calculateloss(self.out[-1], y)
 
         # calculate d_error for last layer
         d_error = self.lossderiv(self.out[-1], y)
 
-        # calculate delta for last layer Update weights?
+        # calculate delta for last layer
         delta = self.layers[-1].calcwdeltas(d_error)
-        # d_out_d_net = []
-        # for n in self.layers[-1].neurons:
-        #     d_out_d_net.append(n.activationderivative())
-        
-        # delta = d_error * d_out_d_net
 
         # update weights using delta
         for i, l in enumerate(reversed(self.layers)):
@@ -82,7 +84,6 @@ class NeuralNetwork:
                 continue
             delta = l.calcwdeltas(delta)
 
-        # print (self.out[-1])
         return self.out[-1]
 
 if __name__=="__main__":
@@ -96,29 +97,55 @@ if __name__=="__main__":
         y=np.array([0.01,0.99])
         num_neurons = [2, 2]
         n = NeuralNetwork(2, num_neurons, len(x), 1, 0, 0.5, w)
-        for i in range(2000):
+        for i in range(1000):
             yp = n.train(x, y)
-            if(i % 100):
+            if(i % 100 == 0):
                 print("interation:", i)
                 print("output: ", yp, y)
                 print("Error", n.e_total)
         
     elif(sys.argv[1]=='and'):
-        print('learn and')
-        
-    elif(sys.argv[1]=='xor'):
         x=[[0, 0], [0, 1], [1, 0], [1, 1]]
-        y=[0, 1, 1, 0]
-        n = NeuralNetwork(2, 2, 2, 1, 0, 0.1)
+        y=[[0.0], [0.0], [0.0], [1.0]]
+        y = np.asarray(y)
+        num_neurons = [2, 1]
+        n = NeuralNetwork(2, num_neurons, 2, 1, 0, 0.1)
 
         for e in range(1000):
             for i in range(len(x)):
                 yp = n.train(x[i], y[i])
 
-            
-            if(e % 100):
-                print("interation:", i)
-                print("output: ", yp, y)
+            if(e % 100 == 0):
+                print("interation:", e)
+                
+                for i in range(len(x)):
+                    print("sample", i)
+                    yp = n.train(x[i], y[i])
+                    print("\tintput: ", x[i])
+                    print("\toutput: ", yp)
+                    print("\tground truth: ", y[i])
+                
                 print("Error", n.e_total)
-            
-        print('learn xor')
+        
+    elif(sys.argv[1]=='xor'):
+        x=[[0, 0], [0, 1], [1, 0], [1, 1]]
+        y=[[0.0], [1.0], [1.0], [0.0]]
+        y = np.asarray(y)
+        num_neurons = [2, 1]
+        n = NeuralNetwork(2, num_neurons, 2, 1, 0, 0.1)
+
+        for e in range(1000):
+            for i in range(len(x)):
+                yp = n.train(x[i], y[i])
+
+            if(e % 100 == 0):
+                print("interation:", e)
+                
+                for i in range(len(x)):
+                    print("sample", i)
+                    yp = n.train(x[i], y[i])
+                    print("\tintput: ", x[i])
+                    print("\toutput: ", yp)
+                    print("\tground truth: ", y[i])
+                
+                print("Error", n.e_total)
