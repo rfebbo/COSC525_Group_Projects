@@ -1,6 +1,6 @@
 import numpy as np
 import sys
-import FullyConnectedLayer
+import Layers
 """
 For this entire file there are a few constants:
 activation:
@@ -11,56 +11,73 @@ loss:
 1 - binary cross entropy
 """
 
-
-# A class which represents a single neuron
-class Neuron:
-    #initilize neuron with activation type, number of inputs, learning rate, and possibly with set weights
-    def __init__(self,activation, input_num, lr, weights=None):
-        print('constructor')    
-        
-    #This method returns the activation of the net
-    def activate(self,net):
-        print('activate')   
-        
-    #Calculate the output of the neuron should save the input and output for back-propagation.   
-    def calculate(self,input):
-        print('calculate')
-
-    #This method returns the derivative of the activation function with respect to the net   
-    def activationderivative(self):
-        print('activationderivative')   
-    
-    #This method calculates the partial derivative for each weight and returns the delta*w to be used in the previous layer
-    def calcpartialderivative(self, wtimesdelta):
-        print('calcpartialderivative') 
-    
-    #Simply update the weights using the partial derivatives and the leranring weight
-    def updateweight(self):
-        print('updateweight')
-
-
         
 #An entire neural network        
 class NeuralNetwork:
     #initialize with the number of layers, number of neurons in each layer (vector), input size, activation (for each layer), the loss function, the learning rate and a 3d matrix of weights weights (or else initialize randomly)
     def __init__(self,numOfLayers,numOfNeurons, inputSize, activation, loss, lr, weights=None):
-        print('constructor') 
+        self.layers = []
+        for i in range(numOfLayers):
+            self.layers.append(Layers.FullyConnected(numOfNeurons, activation, inputSize, lr, weights[i]))
+
+        self.loss = loss
+        self.activation = activation
+        
+        # print('constructor') 
     
     #Given an input, calculate the output (using the layers calculate() method)
     def calculate(self,input):
-        print('constructor')
+        self.out = []
+        self.out.append(self.layers[0].calculate(input))
+        # print("output",self.out)
+        for i, l in enumerate(self.layers):
+            if i == 0:
+                continue
+            # print("output",self.out)
+            self.out.append(l.calculate(self.out[-1]))
+
+        # print(self.out)
+
         
     #Given a predicted output and ground truth output simply return the loss (depending on the loss function)
     def calculateloss(self,yp,y):
-        print('calculate')
+        if self.loss == 0:
+            return 0.5 * np.sum(((yp - y))**2)
+        else:
+            return -np.mean(y*np.log(y) + (1-yp)*np.log(1-y))
     
     #Given a predicted output and ground truth output simply return the derivative of the loss (depending on the loss function)        
     def lossderiv(self,yp,y):
-        print('lossderiv')
+        if self.loss == 0:
+            return -(y - yp)
+        else:
+            return -y/yp + (1-y)/(1-yp)
     
-    #Given a single input and desired output preform one step of backpropagation (including a forward pass, getting the derivative of the loss, and then calling calcwdeltas for layers with the right values         
+    #Given a single input and desired output preform one step of backpropagation
+    # (including a forward pass, getting the derivative of the loss, and then calling calcwdeltas for layers with the right values         
     def train(self,x,y):
-        print('train')
+        
+        self.calculate(x)
+        self.e_total = self.calculateloss(self.out[-1], y)
+
+        d_error = self.lossderiv(self.out[-1], y)
+
+        d_out_d_net = []
+        for n in self.layers[-1].neurons:
+            d_out_d_net.append(n.activationderivative())
+        
+        delta = d_error * d_out_d_net
+
+        for i, l in enumerate(reversed(self.layers)):
+            if i == 0:
+            # if i == len(self.layers) - 1:
+                continue
+            delta = l.calcwdeltas(delta)
+
+
+        # print(delta)
+        return self.out[-1]
+        # print('train')
 
 if __name__=="__main__":
     if (len(sys.argv)<2):
@@ -69,8 +86,13 @@ if __name__=="__main__":
     elif (sys.argv[1]=='example'):
         print('run example from class (single step)')
         w=np.array([[[.15,.2,.35],[.25,.3,.35]],[[.4,.45,.6],[.5,.55,.6]]])
-        x==np.array([0.05,0.1])
-        np.array([0.01,0.99])
+        x=np.array([0.05,0.1])
+        y=np.array([0.01,0.99])
+        n = NeuralNetwork(2, 2, len(x), 1, 0, 0.01, w)
+        for i in range(1000):
+            yp = n.train(x, y)
+            if(i % 100):
+                print(0.5 * np.sum(((yp - y))**2))
         
     elif(sys.argv[1]=='and'):
         print('learn and')

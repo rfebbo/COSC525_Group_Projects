@@ -29,14 +29,17 @@ class Neuron:
         self.input_num = input_num;
         self.lr = lr;
         # determine weights either randomly or with inputs
-        if weights == None:
+        if (weights == None).all():
            self.weights = np.random.rand(input_num);
            self.bias = float(np.random.rand(1));
         elif len(weights) == input_num + 1:
-            self.bias = weights.pop();
-            self.weights = weights;
+            self.bias = weights[-1];
+            self.weights = weights[:-1];
         else:
-            print("len(weights) = input_num + 1")
+            print(input_num)
+            print(weights.shape)
+
+            # print("len(weights) = input_num + 1")
             sys.exit();
            
         
@@ -54,16 +57,19 @@ class Neuron:
         else:
             #print("logistic")
             self.out = 1 / (1 + np.exp(-net))
+
+        return self.out
     
         
     #Calculate the output of the neuron should save the input and output for back-propagation.   
     def calculate(self,input):
         #print('calculate')
         if len(input) != self.input_num:
-            print("len(input) = input_num")
+            # print("len(input) = input_num")
             sys.exit();
         self.input = input;
         self.net = np.dot(self.input, self.weights) + self.bias;
+        return self.net
         
 
     #This method returns the derivative of the activation function with respect to the net   
@@ -78,19 +84,22 @@ class Neuron:
         # df(x) = out(1 - out)
         else:
             self.dactive = self.out * (1 - self.out);
+
+        return self.dactive
         
         
     
     #This method calculates the partial derivative for each weight and returns the delta*w to be used in the previous layer
     def calcpartialderivative(self, wtimesdelta):
-        print('calcpartialderivative') 
+        # print('calcpartialderivative') 
         self.delta = wtimesdelta * self.dactive;
+        self.delta *= self.out
         # not sure how to handle biases here
         return self.delta * self.weights;
     
     #Simply update the weights using the partial derivatives and the learning weight
     def updateweight(self):
-        print('updateweight')
+        # print('updateweight')
         self.weights = self.weights - (self.lr * self.delta);
         self.bias = self.bias - (self.lr * self.delta);
 
