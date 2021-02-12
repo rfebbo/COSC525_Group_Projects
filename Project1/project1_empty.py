@@ -18,6 +18,7 @@ class NeuralNetwork:
     def __init__(self,numOfLayers,numOfNeurons, inputSize, activation, loss, lr, weights=None):
         self.layers = []
         for i in range(numOfLayers):
+            print("layer ", i, "got weights ", weights[i])
             self.layers.append(Layers.FullyConnected(numOfNeurons, activation, inputSize, lr, weights[i]))
 
         self.loss = loss
@@ -27,7 +28,7 @@ class NeuralNetwork:
     
     #Given an input, calculate the output (using the layers calculate() method)
     def calculate(self,input):
-        self.out = []
+        self.out = [] #set outputs of each layer to empty list
         self.out.append(self.layers[0].calculate(input))
         # print("output",self.out)
         for i, l in enumerate(self.layers):
@@ -56,28 +57,31 @@ class NeuralNetwork:
     #Given a single input and desired output preform one step of backpropagation
     # (including a forward pass, getting the derivative of the loss, and then calling calcwdeltas for layers with the right values         
     def train(self,x,y):
-        
+        # do forward pass
         self.calculate(x)
+
+        # calculate total error
         self.e_total = self.calculateloss(self.out[-1], y)
 
+        # calculate d_error for last layer
         d_error = self.lossderiv(self.out[-1], y)
 
-        d_out_d_net = []
-        for n in self.layers[-1].neurons:
-            d_out_d_net.append(n.activationderivative())
+        # calculate delta for last layer Update weights?
+        delta = self.layers[-1].calcwdeltas(d_error)
+        # d_out_d_net = []
+        # for n in self.layers[-1].neurons:
+        #     d_out_d_net.append(n.activationderivative())
         
-        delta = d_error * d_out_d_net
+        # delta = d_error * d_out_d_net
 
+        # update weights using delta
         for i, l in enumerate(reversed(self.layers)):
             if i == 0:
-            # if i == len(self.layers) - 1:
                 continue
             delta = l.calcwdeltas(delta)
 
-
-        # print(delta)
+        # print (self.out[-1])
         return self.out[-1]
-        # print('train')
 
 if __name__=="__main__":
     if (len(sys.argv)<2):
@@ -88,11 +92,13 @@ if __name__=="__main__":
         w=np.array([[[.15,.2,.35],[.25,.3,.35]],[[.4,.45,.6],[.5,.55,.6]]])
         x=np.array([0.05,0.1])
         y=np.array([0.01,0.99])
-        n = NeuralNetwork(2, 2, len(x), 1, 0, 0.01, w)
-        for i in range(1000):
+        n = NeuralNetwork(2, 2, len(x), 1, 0, 0.5, w)
+        for i in range(2000):
             yp = n.train(x, y)
             if(i % 100):
-                print(0.5 * np.sum(((yp - y))**2))
+                print("interation:", i)
+                print("output: ", yp, y)
+                print("Error", n.e_total)
         
     elif(sys.argv[1]=='and'):
         print('learn and')

@@ -33,8 +33,9 @@ class Neuron:
            self.weights = np.random.rand(input_num);
            self.bias = float(np.random.rand(1));
         elif len(weights) == input_num + 1:
-            self.bias = weights[-1];
-            self.weights = weights[:-1];
+            self.bias = np.asarray(weights[-1]);
+            self.weights = np.asarray(weights[:-1]);
+            print("self.weights", self.weights)
         else:
             print(input_num)
             print(weights.shape)
@@ -64,11 +65,14 @@ class Neuron:
     #Calculate the output of the neuron should save the input and output for back-propagation.   
     def calculate(self,input):
         #print('calculate')
+        input = np.asarray(input)
         if len(input) != self.input_num:
             # print("len(input) = input_num")
             sys.exit();
         self.input = input;
-        self.net = np.dot(self.input, self.weights) + self.bias;
+        print("self.input, self.weights", self.input.shape, self.weights.shape)
+        self.net = np.dot(self.input,self.weights)# + self.bias;
+        print("neuron output shape",self.net.shape)
         return self.net
         
 
@@ -92,15 +96,16 @@ class Neuron:
     #This method calculates the partial derivative for each weight and returns the delta*w to be used in the previous layer
     def calcpartialderivative(self, wtimesdelta):
         # print('calcpartialderivative') 
+        wtimesdelta = np.asarray(wtimesdelta)
         self.delta = wtimesdelta * self.dactive;
-        self.delta *= self.out
+        self.d_error = self.delta * self.out
         # not sure how to handle biases here
         return self.delta * self.weights;
     
     #Simply update the weights using the partial derivatives and the learning weight
     def updateweight(self):
         # print('updateweight')
-        self.weights = self.weights - (self.lr * self.delta);
+        self.weights = self.weights - (self.lr * self.d_error);
         self.bias = self.bias - (self.lr * self.delta);
 
 """
