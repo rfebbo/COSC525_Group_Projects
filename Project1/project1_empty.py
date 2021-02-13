@@ -62,38 +62,24 @@ class NeuralNetwork:
         # do forward pass
         self.calculate(x)
 
-        # print(self.out[-1])
-        # print(y)
-        # if(len(self.out[-1]) == 1):
-        #     self.out[-1] = float(self.out[-1][0])
-            
-        # print(self.out[-1])
-        # print(y)
         # calculate total error
         self.e_total = self.calculateloss(self.out[-1], y)
 
         # calculate d_error for last layer
         d_error = self.lossderiv(self.out[-1], y)
-        # print("d_error", d_error)
+
         # calculate delta for last layer
         wdelta = []
         for i, n in enumerate(self.layers[-1].neurons):
-            d_out_d_net = n.activationderivative()
-            delta_i = d_error[i] * d_out_d_net
-            n.delta = delta_i
-            n.d_error = delta_i * n.input
-            wdelta_i = (n.weights * delta_i)
-            # print("delta_0", i, delta_i)
+            n.calcpartialderivative(d_error[i])
+            wdelta_i = (n.weights * n.delta)
             wdelta.append(wdelta_i)
             
             # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
             n.updateweight()
 
         wdelta = np.sum(wdelta, axis=0)
-
-        # delta = self.layers[-1].calcwdeltas(d_error)
         
-        # print("wdelta", wdelta)
         # return
         # update weights using delta
         for i, l in enumerate(reversed(self.layers)):
