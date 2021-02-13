@@ -33,14 +33,15 @@ class FullyConnected:
     # and then update the wieghts (using the updateweight() method). I should return the sum of w*delta.          
     def calcwdeltas(self, wtimesdelta):
         w_delta = []
-        # print("wtimesdelta ", wtimesdelta)
+
         for i, n in enumerate(self.neurons):
-            # print(i)
-            s = np.sum(n.weights * wtimesdelta) 
-            w_delta.append(s * n.calcpartialderivative(wtimesdelta[i]))
+            w_delta.append(n.calcpartialderivative(wtimesdelta[i]))
+            
+            # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
             n.updateweight()
 
-        return np.squeeze(w_delta)
+        w_delta = np.sum(w_delta)
+        return w_delta
         # print('calcwdeltas')
            
 

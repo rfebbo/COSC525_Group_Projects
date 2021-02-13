@@ -74,15 +74,33 @@ class NeuralNetwork:
 
         # calculate d_error for last layer
         d_error = self.lossderiv(self.out[-1], y)
-
+        # print("d_error", d_error)
         # calculate delta for last layer
-        delta = self.layers[-1].calcwdeltas(d_error)
+        wdelta = []
+        for i, n in enumerate(self.layers[-1].neurons):
+            d_out_d_net = n.activationderivative()
+            delta_i = d_error[i] * d_out_d_net
+            n.delta = delta_i
+            n.d_error = delta_i * n.input
+            wdelta_i = (n.weights * delta_i)
+            # print("delta_0", i, delta_i)
+            wdelta.append(wdelta_i)
+            
+            # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
+            n.updateweight()
 
+        wdelta = np.sum(wdelta, axis=0)
+
+        # delta = self.layers[-1].calcwdeltas(d_error)
+        
+        # print("wdelta", wdelta)
+        # return
         # update weights using delta
         for i, l in enumerate(reversed(self.layers)):
             if i == 0:
                 continue
-            delta = l.calcwdeltas(delta)
+
+            wdelta = l.calcwdeltas(wdelta)
 
         return self.out[-1]
 
@@ -97,21 +115,22 @@ if __name__=="__main__":
         y=np.array([0.01,0.99])
         num_neurons = [2, 2]
         n = NeuralNetwork(2, num_neurons, len(x), 1, 0, 0.5, w)
-        for i in range(1000):
+        for i in range(1001):
             yp = n.train(x, y)
             if(i % 100 == 0):
                 print("interation:", i)
                 print("output: ", yp, y)
                 print("Error", n.e_total)
+                print()
         
     elif(sys.argv[1]=='and'):
         x=[[0, 0], [0, 1], [1, 0], [1, 1]]
-        y=[[0.0], [0.0], [0.0], [1.0]]
+        y=[0.0, 0.0, 0.0, 1.0]
         y = np.asarray(y)
-        num_neurons = [2, 1]
-        n = NeuralNetwork(2, num_neurons, 2, 1, 0, 0.1)
+        num_neurons = [1]
+        n = NeuralNetwork(1, num_neurons, 2, 1, 0, 0.1)
 
-        for e in range(1000):
+        for e in range(2001):
             for i in range(len(x)):
                 yp = n.train(x[i], y[i])
 
@@ -129,16 +148,16 @@ if __name__=="__main__":
         
     elif(sys.argv[1]=='xor'):
         x=[[0, 0], [0, 1], [1, 0], [1, 1]]
-        y=[[0.0], [1.0], [1.0], [0.0]]
+        y=[0.0, 1.0, 1.0, 0.0]
         y = np.asarray(y)
         num_neurons = [2, 1]
         n = NeuralNetwork(2, num_neurons, 2, 1, 0, 0.1)
 
-        for e in range(1000):
+        for e in range(50001):
             for i in range(len(x)):
                 yp = n.train(x[i], y[i])
 
-            if(e % 100 == 0):
+            if(e % 1000 == 0):
                 print("interation:", e)
                 
                 for i in range(len(x)):
