@@ -147,18 +147,46 @@ class FullyConnected:
         return w_delta
         # print('calcwdeltas')
 
+# input dim example [w, h, c]
 #convolutional layer
+"""
 class ConvolutionalLayer:
     def __init__(self, numKernels, kernelSize, activation, inputDim, lr, weights=None):
-        print("Convolutional Layer")        
-
+        print("Convolutional Layer")
+        self.numKernels = numKernels;
+        self.kernelSize = kernelSize;
+        self.activation = activation;
+        self.inputDim = inputDim;
+        self.lr = lr;
+        if weights is None:
+           self.weights = np.random.rand(inputDim[0]*inputDim[1]*inputDim[2]);
+           self.bias = float(np.random.rand(1));
+        elif len(weights) == inputDim[0] * inputDim[1]*inputDim[2]:
+            self.bias = weights[-1];
+            self.weights = np.asarray(weights[:-1]);
+"""            
 class MaxPoolingLayer:
     def __init__(self, kernelSize, inputDim):
-        print("Max Pooling Layer")
-
+        #print("Max Pooling Layer")
+        self.kernelSize = kernelSize;
+        self.inputDim = inputDim;
+        self.pool = [];
+        
+    def calculate(self, inp):
+        for c in range(self.inputDim[2]):
+            self.pool.append((np.zeros((self.inputDim[0]-self.kernelSize+1, self.inputDim[1]-self.kernelSize+1))))
+            for i in range(len(self.pool[0])):
+                for j in range(len(self.pool[c][0])):
+                    m = []
+                    for k in range(self.kernelSize):
+                        m += inp[c][i+k][j:j+self.kernelSize]
+                    self.pool[c][i][j] = max(m)
+        print(self.pool)
+        
 class FlattenLayer:
     def __init__(self, inputSize):
         print("Flatten Layer")
+        
 
 #An entire neural network        
 class NeuralNetwork:
@@ -272,10 +300,12 @@ if __name__=="__main__":
     if (len(sys.argv)<2):
         #print('a good place to test different parts of your code')
         N = NeuralNetwork(2, 1, 0.1);
-        N.addLayer("FullyConnected", activation=0, numOfNeurons=2, input_num=2)
-        N.addLayer("ConvolutionalLayer")
-        N.addLayer("MaxPoolingLayer")
-        N.addLayer("FlattenLayer")
+        #N.addLayer("FullyConnected", activation=0, numOfNeurons=2, input_num=2)
+        #N.addLayer("ConvolutionalLayer", numKernels = 1, kernelSize=3, activation=1, inputDim=[2,2, 1])
+        N.addLayer("MaxPoolingLayer", kernelSize=2, inputDim=[4,4,1])
+        x = [[[1,2,3,4],[8,2,9,10],[11,3,8,0],[0,1,4,7]]]
+        N.layers[0].calculate(x)
+        #N.addLayer("FlattenLayer")
         
     elif (sys.argv[1]=='example'):
         print('run example from class (single step)')
