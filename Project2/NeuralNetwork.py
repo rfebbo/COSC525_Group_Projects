@@ -257,7 +257,9 @@ class NeuralNetwork:
             print("MaxPoolingLayer")
             self.layers.append(MaxPoolingLayer(kernelSize, inputDim));
         elif layerType == "FlattenLayer":
-            self.layers.append(FlattenLayer(self.inputSize));
+            # change to inputDim
+            # self.layers.append(FlattenLayer(self.inputSize));
+            self.layers.append(FlattenLayer(inputDim));
         else:
             print("layerType must FullyConnected, ConvolutionalLayer, MaxPoolingLayer, or FlattenLayer")
             sys.exit();
@@ -341,7 +343,7 @@ if __name__=="__main__":
         N.layers[0].calculate(x)
         N.layers[0].calculatewdeltas(w)
         
-        N.addLayer("FlattenLayer")
+        N.addLayer("FlattenLayer", inputDim=[4,4,1])
         flat = N.layers[1].calculate(x)
         N.layers[1].calculatewdeltas(flat)
 
