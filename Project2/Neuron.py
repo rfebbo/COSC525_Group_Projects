@@ -58,6 +58,7 @@ class Neuron:
         if len(input) != self.input_num:
             print("len(input) = input_num")
             print(input)
+            print(input.shape)
             print(self.input_num)
             sys.exit();
         self.input = input;

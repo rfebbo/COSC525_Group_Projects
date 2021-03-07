@@ -30,20 +30,39 @@ n.addLayer("FlattenLayer", inputDim = [2, 2, 2])
 n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=18, weights=[l2_weights])
 
 
-def print_nn_output(NN):
+def print_nn_output(NN, input):
+    n.predict(input)
+    print('\n1st convolutional layer, 1st kernel weights:')
+    print(NN.layers[0].weights)
+    print('1st convolutional layer, 1st kernel biases:')
+    print(NN.layers[0].bias)
     print("first layer output")
     print(np.squeeze(NN.out[0]))
-    print("second layer output")
+
+    print("MaxPool layer output")
     print(np.squeeze(NN.out[1]))
-    print("third layer output")
+    
+    print("\nthird layer output")
     print(np.squeeze(NN.out[2]))
+
+    NN.layers[3].update_weights()
+    print('\n1st FC layer, weights:')
+    print(NN.layers[3].weights)
+    print('1st FC layer, biases:')
+    print(NN.layers[3].bias)
+    
     print("final output: ", NN.out[3])
 
-out = n.layers[0].calculate(np.asarray(input))
-print("first layer output\n", out[0])
-out = n.layers[1].calculate(out[0])
-print("second layer output\n", out)
-out = n.layers[2].calculate(out)
-print("Third layer output\n",out)
-out = n.layers[3].calculate(out)
-print("Final output: ", out)
+# out = n.layers[0].calculate(np.asarray(input))
+# print("first layer output\n", out[0])
+# print("second layer output\n", out)
+# print("Third layer output\n",out)
+# print("Final output: ", out)
+
+
+# n.calculate(input)    
+print_nn_output(n,input)
+
+# n.train(input, output)
+
+print(f"loss: {n.e_total}")

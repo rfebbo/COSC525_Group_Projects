@@ -24,6 +24,7 @@ class MaxPoolingLayer:
         
     def calculate(self, inp):     
         self.mLoc = []
+        inp = inp[0]
         for c in range(self.inputDim[0]):
             mLocChannel = []
             self.out.append((np.zeros((int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize)))))
@@ -57,6 +58,7 @@ class FlattenLayer:
     def __init__(self, inputDim, name=None):
         self.inputDim = inputDim;
         self.name=name
+        self.outputShape = (1,np.size(np.zeros(inputDim)))
         
     def calculate(self, i):
         self.out = (np.asarray(i).flatten())

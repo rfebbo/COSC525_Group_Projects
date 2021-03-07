@@ -57,7 +57,7 @@ img=np.expand_dims(input,axis=(0,3))
 
 
 
-def print_model_info(model,input_img, output):
+def print_model_info(model,input_img):
     extractor = keras.Model(inputs=model.inputs,
                         outputs=[layer.output for layer in model.layers])
 
@@ -102,7 +102,7 @@ def print_model_info(model,input_img, output):
 
 #print needed values.
 np.set_printoptions(precision=5)
-print_model_info(model,img,output)
+print_model_info(model,img)
 sgd = optimizers.SGD(lr=100)
 print('\ntraining...')
 model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
@@ -110,7 +110,7 @@ model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
 history=model.fit(img,output,batch_size=1,epochs=1)
 
 
-print_model_info(model,img,output)
+print_model_info(model,img)
 print('loss: ', history.history['loss'])
 
 
