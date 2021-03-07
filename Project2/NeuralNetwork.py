@@ -24,9 +24,10 @@ class MaxPoolingLayer:
         print("maxpool shape: ", self.outputShape)
         self.out = [];
         
-    def calculate(self, inp):     
+    def calculate(self, inpu):     
         self.mLoc = []
-        inp = inp[0]
+        self.out = []
+        inp = inpu[0]
         for c in range(self.inputDim[0]):
             mLocChannel = []
             self.out.append((np.zeros((int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize)))))

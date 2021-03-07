@@ -5,7 +5,7 @@ import numpy as np
 #print needed values.
 np.set_printoptions(precision=5)
 
-n = NN.NeuralNetwork([8,8], 1, 100)
+n = NN.NeuralNetwork([8,8], 0, 100)
 l1k1,l1k2,l1b1,l1b2,l2,l2b,input,output = generateExample3()
 
 #input
@@ -24,10 +24,10 @@ for i in range(len(l2[0])):
     l2_weights.append(l2[0][i])
 l2_weights.append(l2b[0])
 print(l2_weights)
-n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 8, 8), weights=l1_weights)
-n.addLayer("MaxPoolingLayer", kernelSize=2)
-n.addLayer("FlattenLayer")
-n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[l2_weights])
+n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 8, 8), weights=l1_weights, name='conv3')
+n.addLayer("MaxPoolingLayer", kernelSize=2, name='maxpool2')
+n.addLayer("FlattenLayer", name='flatten')
+n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[l2_weights], name='fullyconnected')
 
 
 def print_nn_output(NN, input):
@@ -53,69 +53,11 @@ def print_nn_output(NN, input):
     
     print("final output: ", NN.out[3])
 
-# out = n.layers[0].calculate(np.asarray(input))
-# print("first layer output\n", out[0])
-# print("second layer output\n", out)
-# print("Third layer output\n",out)
-# print("Final output: ", out)
+print_nn_output(n,input)
 
+print("\nTraining...")
+n.train(input, output)
 
+print_nn_output(n,input)
 
-n.calculate(input)    
-# print_nn_output(n,input)
-
-# n.train(input, output)
-
-# print(f"loss: {n.e_total}")
-
-# # calculate total error
-n.e_total = n.calculateloss(n.out[-1], output)
-
-# # # calculate d_error for last layer
-# d_error = n.lossderiv(n.out[-1], output)
-
-# # # calculate delta for last layer
-# wdelta = []
-# for i, nue in enumerate(n.layers[-1].neurons):
-#     nue.calcpartialderivative(d_error[i])
-#     wdelta_i = (nue.weights * nue.delta)
-#     wdelta.append(wdelta_i)
-    
-#     # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
-#     nue.updateweight()
-
-# wdelta = np.sum(wdelta, axis=0)
-# n.layers[3].update_weights()
-
-# print('\n1st FC layer, weights:')
-# print(n.layers[3].weights)
-# print('1st FC layer, biases:')
-# print(n.layers[3].bias)
-
-# # update weights using delta
-# # for i, l in enumerate(reversed(n.layers)):
-# #     print(i)
-# #     if i == 0:
-# #         continue
-# #     print(l.name)
-# #     wdelta = l.calcwdeltas(wdelta)
-
-
-
-# print(n.layers[2].name)
-# wdelta = n.layers[2].calcwdeltas(wdelta)
-# print(n.layers[1].name)
-# wdelta = n.layers[1].calcwdeltas(wdelta)
-# print('2nd convolutional layer, kernel weights:')
-# print(n.layers[1].weights)
-# print('2nd convolutional layer, biases:')
-# print(n.layers[1].bias)
-# print(n.layers[0].name)
-# wdelta = n.layers[0].calcwdeltas(wdelta)
-
-
-# print('1st convolutional layer, kernel weights:')
-# print(n.layers[0].weights)
-# print('1st convolutional layer, biases:')
-# print(n.layers[0].bias)
-# # print_nn_wandb(n)
+print(f"loss: {n.e_total}")
