@@ -58,7 +58,7 @@ def generateExample3():
 
 
     #output layer, fully connected
-    l4=np.random.rand(1,9)
+    l4=np.random.rand(1,18)
     l4b=np.random.rand(1)
 
     #input and output

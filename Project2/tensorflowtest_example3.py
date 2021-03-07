@@ -1,3 +1,13 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
+if os.sys.argv[1] == 'gpu':
+    physical_devices = tf.config.experimental.list_physical_devices('GPU')
+    assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+    config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
+elif os.sys.argv[1] == 'cpu':
+    os.environ['CUDA_VISIBLE_DEVICES']="" 
+
 import tensorflow as tf
 import numpy as np
 from tensorflow import keras
@@ -18,6 +28,8 @@ def print_model_info(model,input_img):
     layer2_out = tf.squeeze(layer2_out)
     layer3_out = np.expand_dims(features[2][0],axis=0)
     layer3_out = tf.squeeze(layer3_out)
+    layer4_out = np.expand_dims(features[3][0],axis=0)
+    layer4_out = tf.squeeze(layer4_out)
     print('model output:')
     print(model.predict(img))
 
@@ -25,21 +37,19 @@ def print_model_info(model,input_img):
     print(np.squeeze(model.get_weights()[0][:,:,0,0]))
     print('1st convolutional layer, 1st kernel bias:')
     print(np.squeeze(model.get_weights()[1][0]))
-
-    
     print('1st convolutional layer, 2nd kernel weights:')
     print(np.squeeze(model.get_weights()[0][:,:,0,1]))
     print('1st convolutional layer, 2nd kernel bias:')
     print(np.squeeze(model.get_weights()[1][1]))
     print('1st convolutional layer, output:')
-    print(np.asarray(layer1_out))   
+    print(np.asarray(layer1_out))
     
     print("Max Pooling layer, output")
     print(np.asarray(layer2_out))
     
     print('Fully connnected layer weights')
     print(np.squeeze(model.get_weights()[2]))
-    print('Fylly connected layer bias')
+    print('Fully connected layer bias')
     print(np.squeeze(model.get_weights()[3]))
 
 #Create a feed forward network

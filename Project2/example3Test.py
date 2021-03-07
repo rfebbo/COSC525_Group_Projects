@@ -2,6 +2,9 @@ import NeuralNetwork as NN
 from parameters import generateExample3
 import numpy as np
 
+#print needed values.
+np.set_printoptions(precision=5)
+
 n = NN.NeuralNetwork([8,8], 1, 100)
 l1k1,l1k2,l1b1,l1b2,l2,l2b,input,output = generateExample3()
 
