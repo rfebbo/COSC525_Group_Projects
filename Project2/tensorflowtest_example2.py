@@ -2,8 +2,8 @@
 
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import tensorflow as tf
 if os.sys.argv[1] == 'gpu':
-    import tensorflow as tf
     physical_devices = tf.config.experimental.list_physical_devices('GPU')
     assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
     config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
@@ -55,36 +55,66 @@ model.layers[3].set_weights([np.transpose(l3),l3b])
 img=np.expand_dims(input,axis=(0,3))
 
 
+
+
+def print_model_info(model,input_img, output):
+    extractor = keras.Model(inputs=model.inputs,
+                        outputs=[layer.output for layer in model.layers])
+
+    features = extractor(input_img)
+    layer1_out = np.expand_dims(features[0][0],axis=0)
+    layer1_out = tf.squeeze(layer1_out)
+    layer2_out = np.expand_dims(features[1][0],axis=0)
+    layer2_out = tf.squeeze(layer2_out)
+    layer3_out = np.expand_dims(features[2][0],axis=0)
+    layer3_out = tf.squeeze(layer3_out)
+    layer4_out = np.expand_dims(features[3][0],axis=0)
+    layer4_out = tf.squeeze(layer4_out)
+    print('model output:')
+    print(model.predict(img))
+    print('desired output:')
+    print(output)
+
+    print('1st convolutional layer, 1st kernel weights:')
+    print(np.squeeze(model.get_weights()[0][:,:,0,0]))
+    print('1st convolutional layer, 1st kernel bias:')
+    print(np.squeeze(model.get_weights()[1][0]))
+    print('1st convolutional layer, 2nd kernel weights:')
+    print(np.squeeze(model.get_weights()[0][:,:,0,1]))
+    print('1st convolutional layer, 2nd kernel bias:')
+    print(np.squeeze(model.get_weights()[1][1]))
+    print('1st convolutional layer, output:')
+    print(np.asarray(layer1_out))
+
+    print('2nd convolutional layer, 1st kernel weights:')
+    print(np.squeeze(model.get_weights()[2][:,:,0,0]))
+    print(np.squeeze(model.get_weights()[2][:,:,1,0]))
+    print('2nd convolutional layer, 1st kernel bias:')
+    print(np.squeeze(model.get_weights()[3][0]))
+    print('2nd convolutional layer, output:')
+    print(np.asarray(layer2_out))
+
+    print('\nflatten layer, output:')
+    print(np.asarray(layer3_out))
+
+    print('\nfully connected layer weights:')
+    print(np.squeeze(model.get_weights()[4]))
+    print('fully connected layer bias:')
+    print(np.squeeze(model.get_weights()[5]))
+    print('fully connected layer, output:')
+    print(np.asarray(layer4_out))
+
 #print needed values.
 np.set_printoptions(precision=5)
-print('model output before:')
-print(model.predict(img))
+print_model_info(model,img,output)
 sgd = optimizers.SGD(lr=100)
+print('\ntraining...')
 model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
+
 history=model.fit(img,output,batch_size=1,epochs=1)
-print('model output after:')
-print(model.predict(img))
 
-print('1st convolutional layer, 1st kernel weights:')
-print(np.squeeze(model.get_weights()[0][:,:,0,0]))
-print('1st convolutional layer, 1st kernel bias:')
-print(np.squeeze(model.get_weights()[1][0]))
+print(history.history)
 
-print('1st convolutional layer, 2nd kernel weights:')
-print(np.squeeze(model.get_weights()[0][:,:,0,1]))
-print('1st convolutional layer, 2nd kernel bias:')
-print(np.squeeze(model.get_weights()[1][1]))
-
-
-print('2nd convolutional layer weights:')
-print(np.squeeze(model.get_weights()[2][:,:,0,0]))
-print(np.squeeze(model.get_weights()[2][:,:,1,0]))
-print('2nd convolutional layer bias:')
-print(np.squeeze(model.get_weights()[3]))
-
-print('fully connected layer weights:')
-print(np.squeeze(model.get_weights()[4]))
-print('fully connected layer bias:')
-print(np.squeeze(model.get_weights()[5]))
+print_model_info(model,img,output)
 
 

@@ -83,12 +83,12 @@ def print_model_info(model,input_img, output):
 #print needed values.
 np.set_printoptions(precision=5)
 
-img_test = np.reshape(img, (1,1,5,5))
-l1k1_test = np.reshape(l1k1, (1,1,3,3))
-y = convolve_2d(img_test,l1k1_test,l1b1,1,0)
-y = 1 / (1 + np.exp(-y))
-print("our output:")
-print(y)
+# img_test = np.reshape(img, (1,1,5,5))
+# l1k1_test = np.reshape(l1k1, (1,1,3,3))
+# y = convolve_2d(img_test,l1k1_test,l1b1,1,0)
+# y = 1 / (1 + np.exp(-y))
+# print("our output:")
+# print(y)
 
 print_model_info(model, img, output)
 

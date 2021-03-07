@@ -8,7 +8,6 @@ class FullyConnected:
         self.input_num = input_num
         self.lr = lr
         self.num_neurons = numOfNeurons
-        print('creating neurons')
         if weights is None:
             self.neurons = [Neuron(activation, input_num, lr) for i in range(numOfNeurons)]
         else:

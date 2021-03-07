@@ -37,11 +37,20 @@ n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 
 n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 2, 7, 7), weights=l2_weights)
 n.addLayer("FlattenLayer", inputDim=[1,3,3])
 n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=[l3_weights])
-out = n.layers[0].calculate(np.asarray(input))
-print("first layer output\n", out)
-out = n.layers[1].calculate(out)
-print("second layer output\n", out)
-out = n.layers[2].calculate(out)
-print("Third layer output\n", out)
-out = n.layers[3].calculate(out)
-print("final output: ", out)
+
+print('1st convolutional layer, 1st kernel weights:')
+print(n.layers[0].weights)
+print('1st convolutional layer, 1st kernel biases:')
+print(n.layers[0].bias)
+
+print('2nd convolutional layer, 1st kernel weights:')
+print(n.layers[1].weights)
+print('2nd convolutional layer, 1st kernel biases:')
+print(n.layers[1].bias)
+
+print('1st FC layer, weights:')
+print(n.layers[3].weights)
+print('1st FC layer, biases:')
+print(n.layers[3].bias)
+
+n.train(input, output)
