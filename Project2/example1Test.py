@@ -19,7 +19,7 @@ n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 
 n.addLayer("FlattenLayer", inputDim=[1,3,3])
 n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=[fullyconnectedweights])
 
-input = np.reshape(input, (1,1,5,5))=
+input = np.reshape(input, (1,1,5,5))
 
 print('1st convolutional layer, 1st kernel weights:')
 print(n.layers[0].weights)
