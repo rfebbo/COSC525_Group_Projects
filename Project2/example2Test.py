@@ -34,11 +34,11 @@ for i in range(len(l3[0])):
     l3_weights.append(l3[0][i])
 l3_weights.append(l3b[0])
 
-input = input.reshape(1,1,7,7)
+input = input.reshape(1, 1,7,7)
 n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 7, 7), weights=l1_weights, name="conv3_1")
-n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 2, 7, 7), weights=l2_weights, name='conv3_2')
-n.addLayer("FlattenLayer", inputDim=[1,3,3], name="Flatten")
-n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=[l3_weights], name="FullyConnected")
+n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, weights=l2_weights, name='conv3_2')
+n.addLayer("FlattenLayer", name="Flatten")
+n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[l3_weights], name="FullyConnected")
 
 def print_nn_wandb(NN, input):
     n.predict(input)

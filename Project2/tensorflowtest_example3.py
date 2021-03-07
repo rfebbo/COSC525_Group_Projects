@@ -17,6 +17,10 @@ from tensorflow.keras import optimizers
 from parameters import generateExample3
 from mymath import convolve_2d
 
+
+#print needed values.
+np.set_printoptions(precision=5)
+
 def print_model_info(model,input_img):
     extractor = keras.Model(inputs=model.inputs,
                         outputs=[layer.output for layer in model.layers])

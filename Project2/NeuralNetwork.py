@@ -20,6 +20,8 @@ class MaxPoolingLayer:
         self.kernelSize = kernelSize;
         self.name=name
         self.inputDim = inputDim;
+        self.outputShape = (inputDim[0], int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize))
+        print("maxpool shape: ", self.outputShape)
         self.out = [];
         
     def calculate(self, inp):     
@@ -100,7 +102,7 @@ class NeuralNetwork:
         # print(self.inputSize)
         if self.last_outputShape is not None:
             inputDim = self.last_outputShape
-            print('got last outputShape: ', input_num)
+            print('got last outputShape: ', inputDim)
 
         if layerType == "FullyConnected":
             # print("FullyConnected")
