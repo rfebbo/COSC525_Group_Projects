@@ -46,7 +46,7 @@ model.layers[2].set_weights([np.transpose(l2),l2b])
 img=np.expand_dims(input,axis=(0,3))
 
 
-def print_model_info(model,input_img):
+def print_model_info(model,input_img, output):
     extractor = keras.Model(inputs=model.inputs,
                         outputs=[layer.output for layer in model.layers])
 
@@ -59,6 +59,8 @@ def print_model_info(model,input_img):
     layer3_out = tf.squeeze(layer3_out)
     print('model output:')
     print(model.predict(img))
+    print('desired output:')
+    print(output)
 
     print('1st convolutional layer, 1st kernel weights:')
     print(np.squeeze(model.get_weights()[0][:,:,0,0]))
@@ -88,14 +90,14 @@ y = 1 / (1 + np.exp(-y))
 print("our output:")
 print(y)
 
-print_model_info(model, img)
+print_model_info(model, img, output)
 
 sgd = optimizers.SGD(lr=100)
 print('\ntraining...')
 model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
 history=model.fit(img,output,batch_size=1,epochs=1)
 
-print()
-print_model_info(model, img)
+print(history.history)
+print_model_info(model, img, output)
 
 

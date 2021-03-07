@@ -19,10 +19,14 @@ def convolve_2d(x, f, b, stride, padding):
 
     # determine output shape size
     No = Ni
-    Co = f.shape[0]
+    Co = Nf
     Ho = int((Hi - Hf + padding * 2 + stride)  / stride)
     Wo = int((Wi - Wf + padding * 2 + stride) / stride)
     
+    if (Cf != Ci):
+        print(f'number of channels in filter {Cf} does not match input {Ci}')
+        exit()
+
     y = np.empty((No,Co,Ho,Wo))
 
     for n_o in range(No):

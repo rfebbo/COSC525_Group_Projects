@@ -1,6 +1,8 @@
 import numpy as np
 import sys
 from mymath import convolve_2d
+from ConvolutionLayer import ConvolutionalLayer
+from Neuron import Neuron
 """
 For this entire file there are a few constants:
 activation:
@@ -16,107 +18,121 @@ Notes
 For each neuron, the bias is stored as the last weight of the weight array, so the length of the weight array should be input_nums + 1
 """
 
-# A class which represents a single neuron
-class Neuron:
-    #initilize neuron with activation type, number of inputs, learning rate, and possibly with set weights
-    # Bias = last weight of weight array
-    # len(weights) should = intput_num + 1
-    def __init__(self,activation, input_num, lr, weights=None):
-        #print('constructor')    
-        self.activation = activation;
-        self.input_num = input_num;
-        self.lr = lr;
-        # determine weights either randomly or with inputs
-        if weights is None:
-           self.weights = np.random.rand(input_num);
-           self.bias = float(np.random.rand(1));
-        elif len(weights) == input_num + 1:
-            self.bias = weights[-1];
-            self.weights = np.asarray(weights[:-1]);
-            print(self.bias)
-        else:
-            # print(input_num)
-            # print(weights.shape)
+# # A class which represents a single neuron
+# class Neuron:
+#     #initilize neuron with activation type, number of inputs, learning rate, and possibly with set weights
+#     # Bias = last weight of weight array
+#     # len(weights) should = intput_num + 1
+#     def __init__(self,activation, input_num, lr, weights=None):
+#         #print('constructor')    
+#         self.activation = activation;
+#         self.input_num = input_num;
+#         self.lr = lr;
+#         # determine weights either randomly or with inputs
+#         if weights is None:
+#            self.weights = np.random.rand(input_num);
+#            self.bias = float(np.random.rand(1));
+#         elif len(weights) == input_num + 1:
+#             self.bias = weights[-1];
+#             self.weights = np.asarray(weights[:-1]);
+#             # print(self.bias)
+#         else:
+#             # print(input_num)
+#             # print(weights.shape)
 
-            print("len(weights) = input_num + 1")
-            sys.exit();
+#             print("len(weights) = input_num + 1")
+#             sys.exit();
            
         
        
-    #This method returns the activation of the net
-    def activate(self,net):
-        #print('activate')   
-        # linear
-        # f(x) = x
-        if self.activation == 0:
-            self.out = self.net;
+#     #This method returns the activation of the net
+#     def activate(self,net):
+#         #print('activate')   
+#         # linear
+#         # f(x) = x
+#         if self.activation == 0:
+#             self.out = self.net;
         
-        # logistic
-        # f(x) = 1 / (1 + e^(-x))
-        else:
-            #print("logistic")
-            self.out = 1 / (1 + np.exp(-net))
+#         # logistic
+#         # f(x) = 1 / (1 + e^(-x))
+#         else:
+#             #print("logistic")
+#             self.out = 1 / (1 + np.exp(-net))
 
-        return self.out
+#         return self.out
     
         
-    #Calculate the output of the neuron should save the input and output for back-propagation.   
-    def calculate(self,input):
-        #print('calculate')
-        input = np.asarray(input)
-        if len(input) != self.input_num:
-            # print("len(input) = input_num")
-            sys.exit();
-        self.input = input;
-        self.net = np.dot(self.input,self.weights) + self.bias;
-        return self.net
+#     #Calculate the output of the neuron should save the input and output for back-propagation.   
+#     def calculate(self,input):
+#         #print('calculate')
+#         input = np.asarray(input)
+#         if len(input) != self.input_num:
+#             # print("len(input) = input_num")
+#             sys.exit();
+#         self.input = input;
+#         self.net = np.dot(self.input,self.weights) + self.bias;
+#         return self.net
         
 
-    #This method returns the derivative of the activation function with respect to the net   
-    def activationderivative(self):
-        #print('activationderivative')
-        # linear
-        # df(x) = 1
-        if(self.activation == 0):
-            self.dactive = self.out;
+#     #This method returns the derivative of the activation function with respect to the net   
+#     def activationderivative(self):
+#         #print('activationderivative')
+#         # linear
+#         # df(x) = 1
+#         if(self.activation == 0):
+#             self.dactive = self.out;
         
-        # logistic
-        # df(x) = out(1 - out)
-        else:
-            self.dactive = self.out * (1 - self.out);
+#         # logistic
+#         # df(x) = out(1 - out)
+#         else:
+#             self.dactive = self.out * (1 - self.out);
 
-        return self.dactive
+#         return self.dactive
         
         
     
-    #This method calculates the partial derivative for each weight and returns the delta*w to be used in the previous layer
-    def calcpartialderivative(self, wtimesdelta):
-        self.activationderivative()
+#     #This method calculates the partial derivative for each weight and returns the delta*w to be used in the previous layer
+#     def calcpartialderivative(self, wtimesdelta):
+#         self.activationderivative()
 
-        self.delta = wtimesdelta * self.dactive
-        self.d_error = self.delta * self.input
+#         self.delta = wtimesdelta * self.dactive
+#         self.d_error = self.delta * self.input
 
-        return self.delta * self.weights 
+#         return self.delta * self.weights 
     
-    #Simply update the weights using the partial derivatives and the learning weight
-    def updateweight(self):
-        # print('updateweight')
-        self.weights = self.weights - (self.lr * self.d_error);
-        self.bias = self.bias - (self.lr * self.delta);
-        # print(self.bias)
-        
+#     #Simply update the weights using the partial derivatives and the learning weight
+#     def updateweight(self):
+#         # print('updateweight')
+#         self.weights = self.weights - (self.lr * self.d_error);
+#         self.bias = self.bias - (self.lr * self.delta);
+#         # print(self.bias)
+
 #A fully connected layer        
 class FullyConnected:
     #initialize with the number of neurons in the layer, their activation,the input size, the learning rate and a 2d matrix of weights (or else initilize randomly)
     def __init__(self,numOfNeurons, activation, input_num, lr, weights=None):
+        self.input_num = input_num
+        self.lr = lr
+        self.num_neurons = numOfNeurons
+        print('creating neurons')
         if weights is None:
             self.neurons = [Neuron(activation, input_num, lr) for i in range(numOfNeurons)]
         else:
             self.neurons = [Neuron(activation, input_num, lr, weights[i]) for i in range(numOfNeurons)]
-        self.lr = lr
+        
+
+        self.update_weights()
         
         # print('constructor') 
         
+    def update_weights(self):
+        self.weights = [None] * self.num_neurons
+        self.bias = [None] * self.num_neurons
+        for i, n in enumerate(self.neurons):
+            self.weights[i] = n.weights
+            self.bias[i] = n.bias
+        self.weights = np.asarray(self.weights)
+        self.bias = np.asarray(self.bias)
         
     #calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
     def calculate(self, input):
@@ -131,7 +147,6 @@ class FullyConnected:
         return self.out
         # print('calculate') 
         
-            
     #given the next layer's w*delta, should run through the neurons calling calcpartialderivative() for 
     # each (with the correct value), sum up its ownw*delta (just delta?), 
     # and then update the wieghts (using the updateweight() method). I should return the sum of w*delta.          
@@ -144,10 +159,10 @@ class FullyConnected:
             # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
             n.updateweight()
 
+        self.update_weights()
         w_delta = np.sum(w_delta)
         return w_delta
         # print('calcwdeltas')
-
 # input dim example [w, h, c]
 #convolutional layer
 """
@@ -196,7 +211,7 @@ class MaxPoolingLayer:
         
      
     # wd should be in 3d to include multiple channels
-    def calculatewdeltas(self, wd):
+    def calcwdeltas(self, wd):
         self.newwd = np.zeros((self.inputDim[0], self.inputDim[1], self.inputDim[2]))
         for c in range(len(self.mLoc)):
             flat = np.asarray(wd[0]).flatten()
@@ -212,83 +227,83 @@ class FlattenLayer:
         self.out = (np.asarray(i).flatten())
         return self.out
     
-    def calculatewdeltas(self, wd):
+    def calcwdeltas(self, wd):
         return (np.reshape(wd, (self.inputDim[0], self.inputDim[1], self.inputDim[2])))
             
             
-class ConvolutionalLayer:
-    def __init__(self, numKernels, kernelSize, activation, inputDim, lr, weights=None):
-        print("Convolutional Layer")
-        self.numKernels = numKernels
-        self.kernelSize = kernelSize
-        self.activation = activation
-        self.inputDim = inputDim
-        self.lr = lr
-        self.weightsShape = (numKernels, inputDim[1], kernelSize[0], kernelSize[1])
-        # print(self.weightsShape)
-        # print(weights)
+# class ConvolutionalLayer:
+#     def __init__(self, numKernels, kernelSize, activation, inputDim, lr, weights=None):
+#         # print("Convolutional Layer")
+#         self.numKernels = numKernels
+#         self.kernelSize = kernelSize
+#         self.activation = activation
+#         self.inputDim = inputDim
+#         self.lr = lr
+#         self.weightsShape = (numKernels, inputDim[1], kernelSize[0], kernelSize[1])
+#         # print(self.weightsShape)
+#         # print(weights)
 
-        #initialize weights
-        if weights is None:
-            #self.weights = np.random.rand(self.weightsShape)
-            self.weights = np.random.rand(self.weightsShape[0],self.weightsShape[1],self.weightsShape[2],self.weightsShape[3])
-            self.bias = [float(np.random.rand(numKernels))]
-        else: #removed error checking!
-            self.bias = weights[-1]
-            self.weights = np.asarray(weights[:-1])
-            #self.weights = self.weights[0]
-            self.weights = np.asarray(weights[:-1]).reshape((self.weightsShape))
-        # shorthand for filter shape sizes
-        Nf = self.weights.shape[0]
-        Cf = self.weights.shape[1]
-        Hf = self.weights.shape[2]
-        Wf = self.weights.shape[3]
+#         #initialize weights
+#         if weights is None:
+#             #self.weights = np.random.rand(self.weightsShape)
+#             self.weights = np.random.rand(self.weightsShape[0],self.weightsShape[1],self.weightsShape[2],self.weightsShape[3])
+#             self.bias = [float(np.random.rand(numKernels))]
+#         else: #removed error checking!
+#             self.bias = weights[-1]
+#             self.weights = np.asarray(weights[:-1])
+#             #self.weights = self.weights[0]
+#             self.weights = np.asarray(weights[:-1]).reshape((self.weightsShape))
+#         # shorthand for filter shape sizes
+#         Nf = self.weights.shape[0]
+#         Cf = self.weights.shape[1]
+#         Hf = self.weights.shape[2]
+#         Wf = self.weights.shape[3]
 
-        if (Cf != inputDim[1]):
-            print(f'number of channels in filter {Cf} does not match input {inputDim[1]}')
-            sys.exit()
+#         if (Cf != inputDim[1]):
+#             print(f'number of channels in filter {Cf} does not match input {inputDim[1]}')
+#             sys.exit()
 
-        # determine output shape size
-        self.padding = 0
-        self.stride = 1
-        No = inputDim[0]
-        Co = Nf
-        Ho = int((inputDim[2] - Hf + self.padding * 2 + self.stride)  / self.stride)
-        Wo = int((inputDim[3] - Wf + self.padding * 2 + self.stride) / self.stride)
-        self.outputShape = (No, Co, Ho, Wo)
+#         # determine output shape size
+#         self.padding = 0
+#         self.stride = 1
+#         No = inputDim[0]
+#         Co = Nf
+#         Ho = int((inputDim[2] - Hf + self.padding * 2 + self.stride)  / self.stride)
+#         Wo = int((inputDim[3] - Wf + self.padding * 2 + self.stride) / self.stride)
+#         self.outputShape = (No, Co, Ho, Wo)
 
-        self.neurons = [None] * Co
+#         self.neurons = [None] * Co
 
-        # initialize neurons
-        for c_o in range(Co):
-            self.neurons[c_o] = [None] * Ho
-            for h_o in range(Ho):
-                self.neurons[c_o][h_o] = [None] * Wo
-                for w_o in range(Wo):
-                    print("", end="")
-                    #self.neurons[c_o][h_o][w_o] = Neuron(activation, (Cf,Hf,Wf), lr, self.weights[c_o,:,:,:])
+#         # initialize neurons
+#         for c_o in range(Co):
+#             self.neurons[c_o] = [None] * Ho
+#             for h_o in range(Ho):
+#                 self.neurons[c_o][h_o] = [None] * Wo
+#                 for w_o in range(Wo):
+#                     print("", end="")
+#                     #self.neurons[c_o][h_o][w_o] = Neuron(activation, (Cf,Hf,Wf), lr, self.weights[c_o,:,:,:])
                     
 
 
-#calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
-    def calculate(self, input):
-        self.net = convolve_2d(input, self.weights, self.bias, self.stride, self.padding)
+# #calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
+#     def calculate(self, input):
+#         self.net = convolve_2d(input, self.weights, self.bias, self.stride, self.padding)
         
-        if (self.activation == 1):
-            self.out = 1 / (1 + np.exp(-self.net))
-            self.dactive = self.out * (1 - self.out)
-        else:
-            self.dactive = self.out = self.net
-        return self.out
+#         if (self.activation == 1):
+#             self.out = 1 / (1 + np.exp(-self.net))
+#             self.dactive = self.out * (1 - self.out)
+#         else:
+#             self.dactive = self.out = self.net
+#         return self.out
         
         
             
-    #given the next layer's w*delta, should run through the neurons calling calcpartialderivative() for 
-    # each (with the correct value), sum up its ownw*delta (just delta?), 
-    # and then update the wieghts (using the updateweight() method). I should return the sum of w*delta.          
-    def calcwdeltas(self, wtimesdelta):
-        wtimesdelta = np.reshape(wtimesdelta, self.weightsShape)
-        pass
+#     #given the next layer's w*delta, should run through the neurons calling calcpartialderivative() for 
+#     # each (with the correct value), sum up its ownw*delta (just delta?), 
+#     # and then update the wieghts (using the updateweight() method). I should return the sum of w*delta.          
+#     def calcwdeltas(self, wtimesdelta):
+#         wtimesdelta = np.reshape(wtimesdelta, self.weightsShape)
+#         pass
 
 #An entire neural network        
 class NeuralNetwork:
@@ -358,16 +373,20 @@ class NeuralNetwork:
     #Given a predicted output and ground truth output simply return the loss (depending on the loss function)
     def calculateloss(self,yp,y):
         if self.loss == 0:
-            return 0.5 * np.sum(((yp - y))**2)
+            return (1 / len(y)) * np.sum(((yp - y))**2)
         else:
             return -np.mean(y*np.log(y) + (1-yp)*np.log(1-y))
     
     #Given a predicted output and ground truth output simply return the derivative of the loss (depending on the loss function)        
     def lossderiv(self,yp,y):
         if self.loss == 0:
-            return -(y - yp)
+            return -2 * (y - yp)
         else:
             return -y/yp + (1-y)/(1-yp)
+
+    def update_weights(self):
+        for l in self.layers:
+            l.update_weights()
     
     #Given a single input and desired output preform one step of backpropagation
     # (including a forward pass, getting the derivative of the loss, and then calling calcwdeltas for layers with the right values         
