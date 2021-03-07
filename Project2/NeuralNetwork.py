@@ -15,9 +15,10 @@ loss:
 """
 
 class MaxPoolingLayer:
-    def __init__(self, kernelSize, inputDim):
+    def __init__(self, kernelSize, inputDim, name=None):
         #print("Max Pooling Layer")
         self.kernelSize = kernelSize;
+        self.name=name
         self.inputDim = inputDim;
         self.out = [];
         
@@ -53,8 +54,9 @@ class MaxPoolingLayer:
         return self.newwd
         
 class FlattenLayer:
-    def __init__(self, inputDim):
+    def __init__(self, inputDim, name=None):
         self.inputDim = inputDim;
+        self.name=name
         
     def calculate(self, i):
         self.out = (np.asarray(i).flatten())
@@ -87,33 +89,36 @@ class NeuralNetwork:
     # add a layer to the neural network
     # input with layer type (FullyConnected, ConvolutionalLayer, MaxPoolingLayer, FlattenLayer)
     # call using keyword parameters
-    def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None):
+    def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None, name=None):
         # if len(self.layers) != 0:
         #     self.inputSize = (len(self.layers[-1].out),len(self.layers[0][0]),len(self.layers[0]))
         # print(self.inputSize)
         if layerType == "FullyConnected":
             # print("FullyConnected")
             if weights is None:
-                self.layers.append(FullyConnected(numOfNeurons, activation, input_num, self.lr))
+                self.layers.append(FullyConnected(numOfNeurons, activation, input_num, self.lr, name=name))
             else:
-                self.layers.append(FullyConnected(numOfNeurons, activation, input_num, self.lr, weights))
+                self.layers.append(FullyConnected(numOfNeurons, activation, input_num, self.lr, weights, name))
         elif layerType == "ConvolutionLayer":
             # print("ConvolutionalLayer")
             if weights is None:
-                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr));
+                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, name=name));
             else:
-                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights));
+                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights, name));
         elif layerType == "MaxPoolingLayer":
             #print("MaxPoolingLayer")
-            self.layers.append(MaxPoolingLayer(kernelSize, inputDim));
+            self.layers.append(MaxPoolingLayer(kernelSize, inputDim, name=name));
         elif layerType == "FlattenLayer":
             # change to inputDim
             # self.layers.append(FlattenLayer(self.inputSize));
-            self.layers.append(FlattenLayer(inputDim));
+            self.layers.append(FlattenLayer(inputDim, name=name));
         else:
             print("layerType must FullyConnected, ConvolutionalLayer, MaxPoolingLayer, or FlattenLayer")
             sys.exit();
-            
+
+    def predict(self, input):
+        self.calculate(input)
+        return self.out[-1] 
     
     #Given an input, calculate the output (using the layers calculate() method)
     def calculate(self,input):

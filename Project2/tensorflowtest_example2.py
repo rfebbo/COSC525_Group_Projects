@@ -63,19 +63,15 @@ def print_model_info(model,input_img, output):
 
     features = extractor(input_img)
     layer1_out = np.expand_dims(features[0][0],axis=0)
-    layer1_out = tf.squeeze(layer1_out)
+    layer1_out = np.squeeze(layer1_out).reshape(2,5,5)
     layer2_out = np.expand_dims(features[1][0],axis=0)
     layer2_out = tf.squeeze(layer2_out)
     layer3_out = np.expand_dims(features[2][0],axis=0)
     layer3_out = tf.squeeze(layer3_out)
     layer4_out = np.expand_dims(features[3][0],axis=0)
     layer4_out = tf.squeeze(layer4_out)
-    print('model output:')
-    print(model.predict(img))
-    print('desired output:')
-    print(output)
 
-    print('1st convolutional layer, 1st kernel weights:')
+    print('\n1st convolutional layer, 1st kernel weights:')
     print(np.squeeze(model.get_weights()[0][:,:,0,0]))
     print('1st convolutional layer, 1st kernel bias:')
     print(np.squeeze(model.get_weights()[1][0]))
@@ -86,7 +82,7 @@ def print_model_info(model,input_img, output):
     print('1st convolutional layer, output:')
     print(np.asarray(layer1_out))
 
-    print('2nd convolutional layer, 1st kernel weights:')
+    print('\n2nd convolutional layer, 1st kernel weights:')
     print(np.squeeze(model.get_weights()[2][:,:,0,0]))
     print(np.squeeze(model.get_weights()[2][:,:,1,0]))
     print('2nd convolutional layer, 1st kernel bias:')
@@ -113,8 +109,8 @@ model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
 
 history=model.fit(img,output,batch_size=1,epochs=1)
 
-print(history.history)
 
 print_model_info(model,img,output)
+print('loss: ', history.history['loss'])
 
 

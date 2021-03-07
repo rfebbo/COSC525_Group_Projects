@@ -35,77 +35,96 @@ for i in range(len(l3[0])):
 l3_weights.append(l3b[0])
 
 input = input.reshape(1,1,7,7)
-n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 7, 7), weights=l1_weights)
-n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 2, 7, 7), weights=l2_weights)
-n.addLayer("FlattenLayer", inputDim=[1,3,3])
-n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=[l3_weights])
+n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 7, 7), weights=l1_weights, name="conv3_1")
+n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 2, 7, 7), weights=l2_weights, name='conv3_2')
+n.addLayer("FlattenLayer", inputDim=[1,3,3], name="Flatten")
+n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=[l3_weights], name="FullyConnected")
 
-def print_nn_wandb(NN):
-    print('1st convolutional layer, 1st kernel weights:')
+def print_nn_wandb(NN, input):
+    n.predict(input)
+    print('\n1st convolutional layer, 1st kernel weights:')
     print(NN.layers[0].weights)
     print('1st convolutional layer, 1st kernel biases:')
     print(NN.layers[0].bias)
+    print("first layer output")
+    print(np.squeeze(NN.out[0]))
 
-    print('2nd convolutional layer, 1st kernel weights:')
+    print('\n2nd convolutional layer, 1st kernel weights:')
     print(NN.layers[1].weights)
     print('2nd convolutional layer, 1st kernel biases:')
     print(NN.layers[1].bias)
+    print("second layer output")
+    print(np.squeeze(NN.out[1]))
+    
+    print("\nthird layer output")
+    print(np.squeeze(NN.out[2]))
 
-    print('1st FC layer, weights:')
+    NN.layers[3].update_weights()
+    print('\n1st FC layer, weights:')
     print(NN.layers[3].weights)
     print('1st FC layer, biases:')
     print(NN.layers[3].bias)
-
-def print_nn_output(NN):
-    print("first layer output")
-    print(np.squeeze(NN.out[0]))
-    print("second layer output")
-    print(np.squeeze(NN.out[1]))
-    print("third layer output")
-    print(np.squeeze(NN.out[2]))
+    
     print("final output: ", NN.out[3])
 
-print_nn_wandb(n)
 
-# n.train(input, output)
-n.calculate(input)
+print_nn_wandb(n, input)
 
-print_nn_output(n)
 
-# calculate total error
-n.e_total = n.calculateloss(n.out[-1], output)
+print("\nTraining...\n")
+n.train(input, output)
 
-# calculate d_error for last layer
-d_error = n.lossderiv(n.out[-1], output)
+print_nn_wandb(n, input)
 
-# calculate delta for last layer
-wdelta = []
-for i, nue in enumerate(n.layers[-1].neurons):
-    nue.calcpartialderivative(d_error[i])
-    wdelta_i = (nue.weights * nue.delta)
-    wdelta.append(wdelta_i)
+print(f"loss: {n.e_total}")
+
+# # calculate total error
+# n.e_total = n.calculateloss(n.out[-1], output)
+
+# # calculate d_error for last layer
+# d_error = n.lossderiv(n.out[-1], output)
+
+# # calculate delta for last layer
+# wdelta = []
+# for i, nue in enumerate(n.layers[-1].neurons):
+#     nue.calcpartialderivative(d_error[i])
+#     wdelta_i = (nue.weights * nue.delta)
+#     wdelta.append(wdelta_i)
     
-    # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
-    nue.updateweight()
+#     # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
+#     nue.updateweight()
 
-wdelta = np.sum(wdelta, axis=0)
+# wdelta = np.sum(wdelta, axis=0)
+# n.layers[3].update_weights()
 
-n.layers[3].update_weights()
-print('\n1st FC layer, weights:')
-print(n.layers[3].weights)
-print('1st FC layer, biases:')
-print(n.layers[3].bias)
+# # update weights using delta
+# # for i, l in enumerate(reversed(n.layers)):
+# #     print(i)
+# #     if i == 0:
+# #         continue
+# #     print(l.name)
+# #     wdelta = l.calcwdeltas(wdelta)
 
-wdelta = n.layers[2].calcwdeltas(wdelta)
-wdelta = n.layers[1].calcwdeltas(wdelta)
+# print('\n1st FC layer, weights:')
+# print(n.layers[3].weights)
+# print('1st FC layer, biases:')
+# print(n.layers[3].bias)
+
+
+# print(n.layers[2].name)
+# wdelta = n.layers[2].calcwdeltas(wdelta)
+# print(n.layers[1].name)
+# wdelta = n.layers[1].calcwdeltas(wdelta)
+# print('2nd convolutional layer, kernel weights:')
+# print(n.layers[1].weights)
+# print('2nd convolutional layer, biases:')
+# print(n.layers[1].bias)
+# print(n.layers[0].name)
 # wdelta = n.layers[0].calcwdeltas(wdelta)
 
-print('2nd convolutional layer, kernel weights:')
-print(n.layers[1].weights)
-print('2nd convolutional layer, biases:')
-print(n.layers[1].bias)
-print('1st convolutional layer, kernel weights:')
-print(n.layers[0].weights)
-print('1st convolutional layer, biases:')
-print(n.layers[0].bias)
-# print_nn_wandb(n)
+
+# print('1st convolutional layer, kernel weights:')
+# print(n.layers[0].weights)
+# print('1st convolutional layer, biases:')
+# print(n.layers[0].bias)
+# # print_nn_wandb(n)

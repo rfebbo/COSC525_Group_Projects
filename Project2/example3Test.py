@@ -29,6 +29,16 @@ n.addLayer("MaxPoolingLayer", kernelSize=2, inputDim=(2,6,6))
 n.addLayer("FlattenLayer", inputDim = [2, 2, 2])
 n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=18, weights=[l2_weights])
 
+
+def print_nn_output(NN):
+    print("first layer output")
+    print(np.squeeze(NN.out[0]))
+    print("second layer output")
+    print(np.squeeze(NN.out[1]))
+    print("third layer output")
+    print(np.squeeze(NN.out[2]))
+    print("final output: ", NN.out[3])
+
 out = n.layers[0].calculate(np.asarray(input))
 print("first layer output\n", out[0])
 out = n.layers[1].calculate(out[0])

@@ -57,12 +57,8 @@ def print_model_info(model,input_img, output):
     layer2_out = tf.squeeze(layer2_out)
     layer3_out = np.expand_dims(features[2][0],axis=0)
     layer3_out = tf.squeeze(layer3_out)
-    print('model output:')
-    print(model.predict(img))
-    print('desired output:')
-    print(output)
 
-    print('1st convolutional layer, 1st kernel weights:')
+    print('\n1st convolutional layer, 1st kernel weights:')
     print(np.squeeze(model.get_weights()[0][:,:,0,0]))
     print('1st convolutional layer, 1st kernel bias:')
     print(np.squeeze(model.get_weights()[1][0]))
@@ -97,7 +93,7 @@ print('\ntraining...')
 model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
 history=model.fit(img,output,batch_size=1,epochs=1)
 
-print(history.history)
 print_model_info(model, img, output)
+print('loss: ', history.history['loss'])
 
 

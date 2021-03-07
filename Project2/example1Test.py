@@ -21,33 +21,34 @@ n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=
 
 input = np.reshape(input, (1,1,5,5))
 
-def print_nn_wandb(NN):
+def print_nn_info(NN,input):
+    NN.predict(input)
     print('1st convolutional layer, 1st kernel weights:')
-    print(NN.layers[0].weights)
+    print(np.squeeze(NN.layers[0].weights))
     print('1st convolutional layer, 1st kernel biases:')
     print(NN.layers[0].bias)
+    print("1st convolutional layer, output:")
+    print(np.squeeze(NN.out[0]))
 
-    print('1st FC layer, weights:')
+    print("\nflatten layer, output:")
+    print(np.squeeze(NN.out[1]))
+
+    print('\nfully connected layer weights:')
     n.layers[2].update_weights()
     print(NN.layers[2].weights)
-    print('1st FC layer, biases:')
+    print('fully connected layer bias:')
     print(NN.layers[2].bias)
-
-def print_nn_output(NN):
-    print("first layer output")
-    print(np.squeeze(NN.out[0]))
-    print("second layer output")
-    print(np.squeeze(NN.out[1]))
+    
     print("final output: ", NN.out[2])
 
-print_nn_wandb(n)
 
+print_nn_info(n, input)
 
-n.train(input, output)
 print("\nTraining...\n")
-print_nn_output(n)
-print("desired output: ", output)
+n.train(input, output)
 
+print_nn_info(n, input)
 print(f"loss: {n.e_total}")
 
-print_nn_wandb(n)
+
+

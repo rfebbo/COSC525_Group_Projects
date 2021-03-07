@@ -4,9 +4,10 @@ from mymath import convolve_2d
 from Neuron import Neuron
 
 class ConvolutionalLayer:
-    def __init__(self, numKernels, kernelSize, activation, inputDim, lr, weights=None):
+    def __init__(self, numKernels, kernelSize, activation, inputDim, lr, weights=None, name=None):
         # print("Convolutional Layer")
         self.numKernels = numKernels
+        self.name=name
         self.kernelSize = kernelSize
         self.activation = activation
         self.inputDim = inputDim
@@ -75,17 +76,24 @@ class ConvolutionalLayer:
         # calculate deltas
         self.delta = wtimesdelta * self.dactive
 
-        #calculate error with respect to weights
-        if self.input.shape[1] > 1:
-            self.delta = np.append(self.delta,self.delta).reshape(self.weightsShape) #I don't really get this
+        self.delta = np.sum(self.delta, axis=1).reshape(1,1,self.out.shape[2], self.out.shape[3])
 
-        self.d_error_w = convolve_2d(self.input, self.delta , np.zeros_like(self.bias), self.stride, self.padding)
+        # print("delta shape: ", self.delta.shape)
+        for c in range(self.input.shape[1]): #why do the other channels on the input not seem to matter?
+            self.d_error_w = convolve_2d(self.input[:,c,:,:].reshape((1,1, self.input.shape[2], self.input.shape[3])), self.delta , np.zeros_like(self.bias), self.stride, self.padding)
 
+
+        self.d_error_w = np.asarray(self.d_error_w)
         #update weights and bias
         self.weights = self.weights - (self.lr * self.d_error_w)
         self.bias = self.bias - (self.lr * np.sum(self.delta))
 
-        #calculate w times delta for this layer
-        wtimesdelta = convolve_2d(self.delta, np.flip(self.weights), np.zeros_like(self.bias), self.stride, 2)
 
+        # print("weights updated")
+        #calculate w times delta for this layer
+        for n in range(self.weights.shape[0]): #why do these dims not seem to matter either?
+            for c in range(self.weights.shape[1]):
+                wtimesdelta = convolve_2d(self.delta, np.flip(self.weights[n,c,:,:].reshape((1,1, self.weightsShape[2], self.weightsShape[3]))), np.zeros_like(self.bias), self.stride, 2)
+
+        # print("wtimesdelta: ", wtimesdelta.shape)
         return wtimesdelta

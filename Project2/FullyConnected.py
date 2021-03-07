@@ -4,9 +4,10 @@ from Neuron import Neuron
 #A fully connected layer        
 class FullyConnected:
     #initialize with the number of neurons in the layer, their activation,the input size, the learning rate and a 2d matrix of weights (or else initilize randomly)
-    def __init__(self,numOfNeurons, activation, input_num, lr, weights=None):
+    def __init__(self,numOfNeurons, activation, input_num, lr, weights=None, name=None):
         self.input_num = input_num
         self.lr = lr
+        self.name=name
         self.num_neurons = numOfNeurons
         if weights is None:
             self.neurons = [Neuron(activation, input_num, lr) for i in range(numOfNeurons)]
@@ -54,4 +55,4 @@ class FullyConnected:
 
         self.update_weights()
         w_delta = np.sum(w_delta)
-        return w_deltaS
+        return w_delta

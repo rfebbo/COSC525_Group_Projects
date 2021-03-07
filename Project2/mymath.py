@@ -24,7 +24,7 @@ def convolve_2d(x, f, b, stride, padding):
     Wo = int((Wi - Wf + padding * 2 + stride) / stride)
     
     if (Cf != Ci):
-        print(f'conv2d: number of channels in filter {Cf} does not match input {Ci}')
+        print(f'conv2d: number of channels in filter ({Cf}) does not match input ({Ci})')
         exit()
 
     y = np.empty((No,Co,Ho,Wo))
