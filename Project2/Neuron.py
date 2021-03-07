@@ -1,5 +1,12 @@
 import numpy as np
 import sys
+
+"""
+Notes
+For each neuron, the bias is stored as the last weight of the weight array, so the length of the weight array should be input_nums + 1
+"""
+
+
 # A class which represents a single neuron
 class Neuron:
     #initilize neuron with activation type, number of inputs, learning rate, and possibly with set weights
