@@ -73,16 +73,19 @@ class ConvolutionalLayer:
     # and then update the wieghts (using the updateweight() method). I should return the sum of w*delta.          
     def calcwdeltas(self, wtimesdelta):
         # calculate deltas
-        wtimesdelta = np.reshape(wtimesdelta, self.outputShape)
         self.delta = wtimesdelta * self.dactive
 
         #calculate error with respect to weights
-        self.d_error_w = convolve_2d(self.input, self.delta, np.zeros_like(self.bias), self.stride, self.padding)
+        if self.input.shape[1] > 1:
+            self.delta = np.append(self.delta,self.delta).reshape(self.weightsShape) #I don't really get this
+
+        self.d_error_w = convolve_2d(self.input, self.delta , np.zeros_like(self.bias), self.stride, self.padding)
 
         #update weights and bias
         self.weights = self.weights - (self.lr * self.d_error_w)
         self.bias = self.bias - (self.lr * np.sum(self.delta))
 
         #calculate w times delta for this layer
+        wtimesdelta = convolve_2d(self.delta, np.flip(self.weights), np.zeros_like(self.bias), self.stride, 2)
 
-        pass
+        return wtimesdelta

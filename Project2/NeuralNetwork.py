@@ -227,7 +227,6 @@ class NeuralNetwork:
 
         wdelta = np.sum(wdelta, axis=0)
         
-        # return
         # update weights using delta
         for i, l in enumerate(reversed(self.layers)):
             if i == 0:

@@ -21,34 +21,33 @@ n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=
 
 input = np.reshape(input, (1,1,5,5))
 
-print('1st convolutional layer, 1st kernel weights:')
-print(n.layers[0].weights)
-print('1st convolutional layer, 1st kernel biases:')
-print(n.layers[0].bias)
+def print_nn_wandb(NN):
+    print('1st convolutional layer, 1st kernel weights:')
+    print(NN.layers[0].weights)
+    print('1st convolutional layer, 1st kernel biases:')
+    print(NN.layers[0].bias)
 
-print('1st FC layer, weights:')
-print(n.layers[2].weights)
-print('1st FC layer, biases:')
-print(n.layers[2].bias)
+    print('1st FC layer, weights:')
+    n.layers[2].update_weights()
+    print(NN.layers[2].weights)
+    print('1st FC layer, biases:')
+    print(NN.layers[2].bias)
+
+def print_nn_output(NN):
+    print("first layer output")
+    print(np.squeeze(NN.out[0]))
+    print("second layer output")
+    print(np.squeeze(NN.out[1]))
+    print("final output: ", NN.out[2])
+
+print_nn_wandb(n)
+
 
 n.train(input, output)
-print("\nTraining...\nfirst layer output")
-print(np.squeeze(n.out[0]))
-print("second layer output")
-print(np.squeeze(n.out[1]))
-print("final output: ", n.out[2])
+print("\nTraining...\n")
+print_nn_output(n)
 print("desired output: ", output)
 
 print(f"loss: {n.e_total}")
 
-
-print('\n1st convolutional layer, 1st kernel weights:')
-print(n.layers[0].weights)
-print('1st convolutional layer, 1st kernel biases:')
-print(n.layers[0].bias)
-
-print('\n1 iter done\n\n1st FC layer, weights:')
-n.layers[2].update_weights()
-print(n.layers[2].weights)
-print('1st FC layer, biases:')
-print(n.layers[2].bias)
+print_nn_wandb(n)
