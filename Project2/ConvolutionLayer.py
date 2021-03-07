@@ -10,6 +10,8 @@ class ConvolutionalLayer:
         self.name=name
         self.kernelSize = kernelSize
         self.activation = activation
+        if(len(inputDim) == 3):
+            inputDim = (1, inputDim[0], inputDim[1], inputDim[2])
         self.inputDim = inputDim
         self.lr = lr
         self.weightsShape = (numKernels, inputDim[1], kernelSize[0], kernelSize[1])
