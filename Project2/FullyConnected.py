@@ -14,7 +14,7 @@ class FullyConnected:
         else:
             self.neurons = [Neuron(activation, input_num, lr, weights[i]) for i in range(numOfNeurons)]
         
-
+        self.outputShape = numOfNeurons
         self.update_weights()
         
         # print('constructor') 

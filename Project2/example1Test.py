@@ -16,8 +16,8 @@ for i in range(len(l2[0])):
 fullyconnectedweights.append(l2b[0])
 
 n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 5, 5), weights=weights)
-n.addLayer("FlattenLayer", inputDim=[1,3,3])
-n.addLayer("FullyConnected", numOfNeurons=1, activation=1, input_num=9, weights=[fullyconnectedweights])
+n.addLayer("FlattenLayer")
+n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[fullyconnectedweights])
 
 input = np.reshape(input, (1,1,5,5))
 

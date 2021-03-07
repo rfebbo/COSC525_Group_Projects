@@ -39,7 +39,7 @@ class ConvolutionalLayer:
         Co = Nf
         Ho = int((inputDim[2] - Hf + self.padding * 2 + self.stride)  / self.stride)
         Wo = int((inputDim[3] - Wf + self.padding * 2 + self.stride) / self.stride)
-        self.outputShape = (No, Co, Ho, Wo)
+        self.outputShape = (Co, Ho, Wo)
 
         self.neurons = [None] * Co
 

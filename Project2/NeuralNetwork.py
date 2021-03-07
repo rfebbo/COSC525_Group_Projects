@@ -58,7 +58,9 @@ class FlattenLayer:
     def __init__(self, inputDim, name=None):
         self.inputDim = inputDim;
         self.name=name
-        self.outputShape = (1,np.size(np.zeros(inputDim)))
+        print('inputdim: ', inputDim)
+        self.outputShape = np.size(np.zeros(inputDim))
+        print("flatten outShape: ", self.outputShape)
         
     def calculate(self, i):
         self.out = (np.asarray(i).flatten())
@@ -84,6 +86,7 @@ class NeuralNetwork:
         self.loss = loss
         self.inputSize = inputSize
         self.lr = lr;
+        self.last_outputShape = None
         #self.activation = activation
         
         # print('constructor') 
@@ -95,12 +98,16 @@ class NeuralNetwork:
         # if len(self.layers) != 0:
         #     self.inputSize = (len(self.layers[-1].out),len(self.layers[0][0]),len(self.layers[0]))
         # print(self.inputSize)
+        if self.last_outputShape is not None:
+            inputDim = self.last_outputShape
+            print('got last outputShape: ', input_num)
+
         if layerType == "FullyConnected":
             # print("FullyConnected")
             if weights is None:
-                self.layers.append(FullyConnected(numOfNeurons, activation, input_num, self.lr, name=name))
+                self.layers.append(FullyConnected(numOfNeurons, activation, inputDim, self.lr, name=name))
             else:
-                self.layers.append(FullyConnected(numOfNeurons, activation, input_num, self.lr, weights, name))
+                self.layers.append(FullyConnected(numOfNeurons, activation, inputDim, self.lr, weights, name))
         elif layerType == "ConvolutionLayer":
             # print("ConvolutionalLayer")
             if weights is None:
@@ -117,6 +124,8 @@ class NeuralNetwork:
         else:
             print("layerType must FullyConnected, ConvolutionalLayer, MaxPoolingLayer, or FlattenLayer")
             sys.exit();
+
+        self.last_outputShape = self.layers[-1].outputShape
 
     def predict(self, input):
         self.calculate(input)
