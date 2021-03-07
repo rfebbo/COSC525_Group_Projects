@@ -1,5 +1,3 @@
-
-
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
@@ -17,34 +15,6 @@ from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 from parameters import generateExample1
 from mymath import convolve_2d
-
-
-
-#Create a feed forward network
-model=Sequential()
-
-# Add convolutional layers, flatten, and fully connected layer
-model.add(layers.Conv2D(1,3,input_shape=(5,5,1),activation='sigmoid', name='conv1'))
-model.add(layers.Flatten())
-model.add(layers.Dense(1,activation='sigmoid'))
-
-# Call weight/data generating function
-l1k1, l1b1, l2, l2b, input, output = generateExample1()
-
-#Set weights to desired values 
-
-#setting weights and bias of first layer.
-l1k1=l1k1.reshape(3,3,1,1)
-
-model.layers[0].set_weights([l1k1,np.array([l1b1[0]])]) #Shape of weight matrix is (w,h,input_channels,kernels)
-
-
-#setting weights and bias of fully connected layer.
-model.layers[2].set_weights([np.transpose(l2),l2b])
-
-#Setting input. Tensor flow is expecting a 4d array since the first dimension is the batch size (here we set it to one), and third dimension is channels
-img=np.expand_dims(input,axis=(0,3))
-
 
 def print_model_info(model,input_img, output):
     extractor = keras.Model(inputs=model.inputs,
@@ -75,25 +45,63 @@ def print_model_info(model,input_img, output):
     print('fully connected layer, output:')
     print(np.asarray(layer3_out))
 
+def run_tf_example1(verbose):
+    #Create a feed forward network
+    model=Sequential()
 
-#print needed values.
-np.set_printoptions(precision=5)
+    # Add convolutional layers, flatten, and fully connected layer
+    model.add(layers.Conv2D(1,3,input_shape=(5,5,1),activation='sigmoid', name='conv1'))
+    model.add(layers.Flatten())
+    model.add(layers.Dense(1,activation='sigmoid'))
 
-# img_test = np.reshape(img, (1,1,5,5))
-# l1k1_test = np.reshape(l1k1, (1,1,3,3))
-# y = convolve_2d(img_test,l1k1_test,l1b1,1,0)
-# y = 1 / (1 + np.exp(-y))
-# print("our output:")
-# print(y)
+    # Call weight/data generating function
+    l1k1, l1b1, l2, l2b, input, output = generateExample1()
 
-print_model_info(model, img, output)
+    #Set weights to desired values 
 
-sgd = optimizers.SGD(lr=100)
-print('\ntraining...')
-model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
-history=model.fit(img,output,batch_size=1,epochs=1)
+    #setting weights and bias of first layer.
+    l1k1=l1k1.reshape(3,3,1,1)
 
-print_model_info(model, img, output)
-print('loss: ', history.history['loss'])
+    model.layers[0].set_weights([l1k1,np.array([l1b1[0]])]) #Shape of weight matrix is (w,h,input_channels,kernels)
+
+
+    #setting weights and bias of fully connected layer.
+    model.layers[2].set_weights([np.transpose(l2),l2b])
+
+    #Setting input. Tensor flow is expecting a 4d array since the first dimension is the batch size (here we set it to one), and third dimension is channels
+    img=np.expand_dims(input,axis=(0,3))
+
+    #print needed values.
+    np.set_printoptions(precision=5)
+
+    # img_test = np.reshape(img, (1,1,5,5))
+    # l1k1_test = np.reshape(l1k1, (1,1,3,3))
+    # y = convolve_2d(img_test,l1k1_test,l1b1,1,0)
+    # y = 1 / (1 + np.exp(-y))
+    # print("our output:")
+    # print(y)
+
+    if(verbose):
+        print_model_info(model, img, output)
+        print('\ntraining...')
+
+    sgd = optimizers.SGD(lr=100)
+
+    model.compile(loss='MSE', optimizer=sgd, metrics=['accuracy'])
+    history=model.fit(img,output,batch_size=1,epochs=1,verbose=verbose)
+
+
+    if(verbose):
+        print_model_info(model, img, output)
+        print('loss: ', history.history['loss'])
+
+
+    l1k1 = np.squeeze(model.get_weights()[0][:,:,0,0])
+    l1b1 = np.squeeze(model.get_weights()[1][0])
+
+    l2 = np.squeeze(model.get_weights()[2])
+    l2b = np.squeeze(model.get_weights()[3])
+
+    return l1k1, l1b1, l2, l2b
 
 

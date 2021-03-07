@@ -2,25 +2,6 @@ import NeuralNetwork as NN
 from parameters import generateExample1
 import numpy as np
 
-#print needed values.
-np.set_printoptions(precision=5)
-
-n = NN.NeuralNetwork([5, 5], 0, 100)
-l1k1, l1b1, l2, l2b, input, output = generateExample1()
-input1 = [[input]]
-l1k1=l1k1.reshape(1,1,3,3)
-weights = ([l1k1,np.array([l1b1[0]])])
-fullyconnectedweights  = []
-for i in range(len(l2[0])):
-    fullyconnectedweights.append(l2[0][i])
-fullyconnectedweights.append(l2b[0])
-
-n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 5, 5), weights=weights)
-n.addLayer("FlattenLayer")
-n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[fullyconnectedweights])
-
-input = np.reshape(input, (1,1,5,5))
-
 def print_nn_info(NN,input):
     NN.predict(input)
     print('1st convolutional layer, 1st kernel weights:')
@@ -34,21 +15,48 @@ def print_nn_info(NN,input):
     print(np.squeeze(NN.out[1]))
 
     print('\nfully connected layer weights:')
-    n.layers[2].update_weights()
+    NN.layers[2].update_weights()
     print(NN.layers[2].weights)
     print('fully connected layer bias:')
     print(NN.layers[2].bias)
     
     print("final output: ", NN.out[2])
 
+def run_example1(verbose):
+    #print needed values.
+    np.set_printoptions(precision=5)
 
-print_nn_info(n, input)
+    n = NN.NeuralNetwork([5, 5], 0, 100)
+    l1k1, l1b1, l2, l2b, input, output = generateExample1()
+    input1 = [[input]]
+    l1k1=l1k1.reshape(1,1,3,3)
+    weights = ([l1k1,np.array([l1b1[0]])])
+    fullyconnectedweights  = []
+    for i in range(len(l2[0])):
+        fullyconnectedweights.append(l2[0][i])
+    fullyconnectedweights.append(l2b[0])
 
-print("\nTraining...\n")
-n.train(input, output)
+    n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 5, 5), weights=weights)
+    n.addLayer("FlattenLayer")
+    n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[fullyconnectedweights])
 
-print_nn_info(n, input)
-print(f"loss: {n.e_total}")
+    input = np.reshape(input, (1,1,5,5))
+    if(verbose):
+        print_nn_info(n, input)
+        print("\nTraining...\n")
+        
+    n.train(input, output)
+
+    if(verbose):
+        print_nn_info(n, input)
+        print(f"loss: {n.e_total}")
+
+    l1k1 = np.squeeze(n.layers[0].weights)
+    l1b1 = np.squeeze(n.layers[0].bias)
+    l2 = np.squeeze(n.layers[2].weights)
+    l2b = np.squeeze(n.layers[2].bias)
+
+    return l1k1, l1b1, l2, l2b
 
 
 

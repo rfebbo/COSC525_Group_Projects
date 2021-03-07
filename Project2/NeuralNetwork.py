@@ -4,6 +4,16 @@ from mymath import convolve_2d
 from ConvolutionLayer import ConvolutionalLayer
 from FullyConnected import FullyConnected
 from Neuron import Neuron
+import example1Test as EX1
+import example2Test as EX2
+import example3Test as EX3
+from tensorflowtest_example1 import run_tf_example1
+from tensorflowtest_example2 import run_tf_example2
+from tensorflowtest_example3 import run_tf_example3
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES']="" 
+
 """
 For this entire file there are a few constants:
 activation:
@@ -21,7 +31,6 @@ class MaxPoolingLayer:
         self.name=name
         self.inputDim = inputDim;
         self.outputShape = (inputDim[0], int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize))
-        print("maxpool shape: ", self.outputShape)
         self.out = [];
         
     def calculate(self, inpu):     
@@ -61,9 +70,7 @@ class FlattenLayer:
     def __init__(self, inputDim, name=None):
         self.inputDim = inputDim;
         self.name=name
-        print('inputdim: ', inputDim)
         self.outputShape = np.size(np.zeros(inputDim))
-        print("flatten outShape: ", self.outputShape)
         
     def calculate(self, i):
         self.out = (np.asarray(i).flatten())
@@ -103,7 +110,6 @@ class NeuralNetwork:
         # print(self.inputSize)
         if self.last_outputShape is not None:
             inputDim = self.last_outputShape
-            print('got last outputShape: ', inputDim)
 
         if layerType == "FullyConnected":
             # print("FullyConnected")
@@ -178,105 +184,59 @@ class NeuralNetwork:
         # calculate d_error for last layer
         d_error = self.lossderiv(self.out[-1], y)
 
-        # calculate delta for last layer
+        # # calculate delta and propogate back
         wdelta = []
-        for i, n in enumerate(self.layers[-1].neurons):
-            n.calcpartialderivative(d_error[i])
-            wdelta_i = (n.weights * n.delta)
-            wdelta.append(wdelta_i)
-            
-            # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
-            n.updateweight()
 
-        wdelta = np.sum(wdelta, axis=0)
-        
-        # update weights using delta
         for i, l in enumerate(reversed(self.layers)):
             if i == 0:
-                continue
-
-            wdelta = l.calcwdeltas(wdelta)
+                wdelta = l.calcwdeltas(d_error)
+            else:
+                wdelta = l.calcwdeltas(wdelta)
 
         return self.out[-1]
 
 if __name__=="__main__":
     if (len(sys.argv)<2):
         #print('a good place to test different parts of your code')
-        N = NeuralNetwork([1,4,4], 1, 0.1);
-        x = [[[1,2,3,4],[8,  2,9,10],[11,3,8,0],[0,1,4,7]]]
-        #x = [[[1,2,3,4],[8,  2,9,10],[11,3,8,0],[0,1,4,7]],[[1,1,1,1],[2,2,2,2],[3,3,3,3],[4,4,4,4]]]
-        w = [[[8,10],[11,8]]]
-        #N.addLayer("FullyConnected", activation=0, numOfNeurons=2, input_num=2)
+        pass
 
-        #N.addLayer("ConvolutionalLayer", numKernels = 1, kernelSize=3, activation=1, inputDim=[2,2, 1])
+    elif (sys.argv[1]=='example1'):
+        labels = ['conv3 kernel1', 'conv3 kernel1 bias', 'FC weights', 'FC bias']
+        w = EX1.run_example1(verbose=False)
+        w_test = run_tf_example1(verbose = False)
 
-
-        N.addLayer("MaxPoolingLayer", kernelSize=2, inputDim=[1,4,4])
-        N.layers[0].calculate(x)
-        N.layers[0].calculatewdeltas(w)
+        w = list(w)
+        w_test = list(w_test)
         
-        N.addLayer("FlattenLayer", inputDim=[1,4,4])
-        flat = N.layers[1].calculate(x)
-        N.layers[1].calculatewdeltas(flat)
-
-    elif (sys.argv[1]=='example'):
-        print('run example from class (single step)')
-        w=np.array([[[.15,.2,.35],[.25,.3,.35]],[[.4,.45,.6],[.5,.55,.6]]])
-        x=np.array([0.05,0.1])
-        y=np.array([0.01,0.99])
-        num_neurons = [2, 2]
-        n = NeuralNetwork(len(x), 0, 0.5)
-        #n = NeuralNetwork(2, num_neurons, len(x), 1, 0, 0.5, w)
-        for i in range(1001):
-            yp = n.train(x, y)
-            if(i % 100 == 0):
-                print("interation:", i)
-                print("output: ", yp, y)
-                print("Error", n.e_total)
-                print()
+        #loop through layer weights
+        for i, l_w in enumerate(w):
+            w_test[i] = [w_test[i]]
+            mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
+            print(labels[i], 'mse: ', mse)
         
-    elif(sys.argv[1]=='and'):
-        x=[[0, 0], [0, 1], [1, 0], [1, 1]]
-        y=[0.0, 0.0, 0.0, 1.0]
-        y = np.asarray(y)
-        num_neurons = [1]
-        n = NeuralNetwork(1, num_neurons, 2, 1, 0, 0.1)
+    elif(sys.argv[1]=='example2'):
+        labels = ['conv3_1 kernel', 'conv3_1 kernel bias', 'conv3_2 kernel', 'conv3_2 kernel bias', 'FC weights', 'FC bias']
+        w = EX2.run_example2(verbose=False)
+        w_test = run_tf_example2(verbose = False)
 
-        for e in range(2001):
-            for i in range(len(x)):
-                yp = n.train(x[i], y[i])
+        w = list(w)
+        w_test = list(w_test)
 
-            if(e % 100 == 0):
-                print("interation:", e)
-                
-                for i in range(len(x)):
-                    print("sample", i)
-                    yp = n.train(x[i], y[i])
-                    print("\tintput: ", x[i])
-                    print("\toutput: ", yp)
-                    print("\tground truth: ", y[i])
-                
-                print("Error", n.e_total)
+        for i, l_w in enumerate(w):
+            w_test[i] = [w_test[i]]
+            mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
+            print(labels[i], 'mse: ', mse)
         
-    elif(sys.argv[1]=='xor'):
-        x=[[0, 0], [0, 1], [1, 0], [1, 1]]
-        y=[0.0, 1.0, 1.0, 0.0]
-        y = np.asarray(y)
-        num_neurons = [2, 1]
-        n = NeuralNetwork(2, num_neurons, 2, 1, 0, 0.1)
+    elif(sys.argv[1]=='example3'):
+        labels = ['conv3_1 kernel', 'conv3_1 kernel bias', 'FC weights', 'FC bias']
+        w = EX3.run_example3(verbose=False)
+        w_test = run_tf_example3(verbose = False)
 
-        for e in range(50001):
-            for i in range(len(x)):
-                yp = n.train(x[i], y[i])
+        w = list(w)
+        w_test = list(w_test)
 
-            if(e % 1000 == 0):
-                print("interation:", e)
-                
-                for i in range(len(x)):
-                    print("sample", i)
-                    yp = n.train(x[i], y[i])
-                    print("\tintput: ", x[i])
-                    print("\toutput: ", yp)
-                    print("\tground truth: ", y[i])
-                
-                print("Error", n.e_total)
+        #loop through layer weights
+        for i, l_w in enumerate(w):
+            w_test[i] = [w_test[i]]
+            mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
+            print(labels[i], 'mse: ', mse)

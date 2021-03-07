@@ -18,7 +18,8 @@ class FullyConnected:
         self.update_weights()
         
         # print('constructor') 
-        
+    
+    #function to pull the weights from the neurons so we can compare them with TF
     def update_weights(self):
         self.weights = [None] * self.num_neurons
         self.bias = [None] * self.num_neurons
@@ -54,5 +55,7 @@ class FullyConnected:
             n.updateweight()
 
         self.update_weights()
-        w_delta = np.sum(w_delta)
+        w_delta = np.sum(w_delta, axis=0)
         return w_delta
+
+        

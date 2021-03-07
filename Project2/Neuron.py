@@ -89,7 +89,7 @@ class Neuron:
         self.delta = wtimesdelta * self.dactive
         self.d_error = self.delta * self.input
 
-        return self.delta * self.weights 
+        return self.delta * self.weights
     
     #Simply update the weights using the partial derivatives and the learning weight
     def updateweight(self):
