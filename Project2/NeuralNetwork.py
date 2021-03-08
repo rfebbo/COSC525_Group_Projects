@@ -25,31 +25,37 @@ loss:
 """
 
 class MaxPoolingLayer:
-    def __init__(self, kernelSize, inputDim, name=None):
+    def __init__(self, kernelSize, inputDim, stride=None, name=None):
         #print("Max Pooling Layer")
         self.kernelSize = kernelSize;
+        self.stride = stride
+        if(stride is None):
+            self.stride = kernelSize
         self.name=name
         self.inputDim = inputDim;
-        self.outputShape = (inputDim[0], int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize))
+        self.outputShape = (inputDim[0], int((self.inputDim[1]-self.kernelSize)/self.stride) + 1, int((self.inputDim[2]-self.kernelSize)/self.stride) + 1)
         self.out = [];
         
     def calculate(self, inpu):     
         self.mLoc = []
         self.out = []
         inp = inpu[0] #get rid of extra dim that comes from conv layers
+
+        self.out = np.zeros(self.outputShape)
         for c in range(self.inputDim[0]):
             mLocChannel = []
-            self.out.append((np.zeros((int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize)))))
-            for i in range(len(self.out[0])):
-                for j in range(len(self.out[c][0])):
+            # self.out.append((np.zeros((int((self.inputDim[1]-self.kernelSize)/self.stride) + 1, int((self.inputDim[2]-self.kernelSize)/self.stride) + 1))))
+            
+            for i in range(self.out.shape[1]):
+                for j in range(self.out.shape[2]):
                     mLoc = []
                     m = []
                     for k in range(self.kernelSize):
                         for l in range(self.kernelSize):
                             #print("inp[",c,"][",i+k,"][",j+l,"]")
-                            m.append(inp[c][i*self.kernelSize+k][j*self.kernelSize+l])
-                            mLoc.append((i*self.kernelSize+k, j*self.kernelSize+l))
-                    self.out[c][i][j] = max(m)            
+                            m.append(inp[c][i*self.stride+k][j*self.stride+l])
+                            mLoc.append((i*self.stride+k, j*self.stride+l))
+                    self.out[c,i,j] = max(m)            
                     mLocChannel.append(mLoc[np.argmax(m)])
             self.mLoc.append(mLocChannel)
         # print(self.mLoc)
@@ -87,16 +93,17 @@ class NeuralNetwork:
         self.layers = []
         self.loss = loss
         self.inputSize = inputSize
+        self.last_outputShape = inputSize
         self.lr = lr;
-        self.last_outputShape = None
 
     # add a layer to the neural network
     # input with layer type (FullyConnected, ConvolutionalLayer, MaxPoolingLayer, FlattenLayer)
     # call using keyword parameters
-    def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None, name=None):
+    def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None, name=None, padding=None, stride=None):
         #check if we have a layer before so we can use it's input shape
         if self.last_outputShape is not None:
             inputDim = self.last_outputShape
+            print("last shape = ", inputDim)
 
         if layerType == "FullyConnected":
             if weights is None:
@@ -109,7 +116,7 @@ class NeuralNetwork:
             else:
                 self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights=weights, name=name));
         elif layerType == "MaxPoolingLayer":
-            self.layers.append(MaxPoolingLayer(kernelSize, inputDim, name=name));
+            self.layers.append(MaxPoolingLayer(kernelSize, inputDim, stride=stride, name=name));
         elif layerType == "FlattenLayer":
             self.layers.append(FlattenLayer(inputDim, name=name));
         else:

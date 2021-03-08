@@ -48,7 +48,7 @@ def generateExample2():
 #Generate data and weights for "example3"
 def generateExample3():
     #Set a seed (that way you get the same values when rerunning the function)
-    np.random.seed(10)
+    np.random.seed(12)
 
     #First hidden layer, two kernels
     l1k1=np.random.rand(3,3)

@@ -1,12 +1,13 @@
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
-if os.sys.argv[1] == 'gpu':
-    physical_devices = tf.config.experimental.list_physical_devices('GPU')
-    assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
-    config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
-elif os.sys.argv[1] == 'cpu':
-    os.environ['CUDA_VISIBLE_DEVICES']="" 
+if(len(os.sys.argv) > 1):
+    if os.sys.argv[1] == 'gpu':
+        physical_devices = tf.config.experimental.list_physical_devices('GPU')
+        assert len(physical_devices) > 0, "Not enough GPU hardware devices available"
+        config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
+    elif os.sys.argv[1] == 'cpu':
+        os.environ['CUDA_VISIBLE_DEVICES']="" 
 
 import tensorflow as tf
 import numpy as np
@@ -108,3 +109,5 @@ def run_tf_example3(verbose):
     return l1k, l1b, l4, l4b
 
 
+if __name__=="__main__":
+    run_tf_example3(True)

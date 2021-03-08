@@ -29,7 +29,7 @@ def run_example1(verbose):
     #print needed values.
     np.set_printoptions(precision=5)
 
-    n = NN.NeuralNetwork([5, 5], 0, 100)
+    n = NN.NeuralNetwork((1,5, 5), 0, 100)
     l1k1, l1b1, l2, l2b, input, output = generateExample1()
     input1 = [[input]]
     l1k1=l1k1.reshape(1,1,3,3)
@@ -39,7 +39,7 @@ def run_example1(verbose):
         fullyconnectedweights.append(l2[0][i])
     fullyconnectedweights.append(l2b[0])
 
-    n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 5, 5), weights=weights)
+    n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, weights=weights)
     n.addLayer("FlattenLayer")
     n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[fullyconnectedweights])
 

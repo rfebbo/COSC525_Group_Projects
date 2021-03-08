@@ -32,7 +32,7 @@ def run_example3(verbose):
     #print needed values.
     np.set_printoptions(precision=5)
 
-    n = NN.NeuralNetwork([8,8], 0, 100)
+    n = NN.NeuralNetwork((1,8,8), 0, 100)
     l1k1,l1k2,l1b1,l1b2,l2,l2b,input,output = generateExample3()
 
     #input
@@ -48,7 +48,7 @@ def run_example3(verbose):
         l2_weights.append(l2[0][i])
     l2_weights.append(l2b[0])
 
-    n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, inputDim = (1, 1, 8, 8), weights=l1_weights, name='conv3')
+    n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, weights=l1_weights, name='conv3')
     n.addLayer("MaxPoolingLayer", kernelSize=2, name='maxpool2')
     n.addLayer("FlattenLayer", name='flatten')
     n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[l2_weights], name='fullyconnected')
@@ -71,3 +71,7 @@ def run_example3(verbose):
     l4b = np.squeeze(n.layers[3].bias)
 
     return l1k, l1b, l4, l4b
+
+    
+if __name__=="__main__":
+    run_example3(True)
