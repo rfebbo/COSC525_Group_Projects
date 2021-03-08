@@ -46,6 +46,8 @@ def print_model_info(model,input_img, output):
     print(np.asarray(layer3_out))
 
 def run_tf_example1(verbose):
+    if(verbose):
+        print("\n***RUNNING TENSORFLOW***")
     #Create a feed forward network
     model=Sequential()
 

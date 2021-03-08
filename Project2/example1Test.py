@@ -3,6 +3,7 @@ from parameters import generateExample1
 import numpy as np
 
 def print_nn_info(NN,input):
+
     NN.predict(input)
     print('1st convolutional layer, 1st kernel weights:')
     print(np.squeeze(NN.layers[0].weights))
@@ -23,6 +24,8 @@ def print_nn_info(NN,input):
     print("final output: ", NN.out[2])
 
 def run_example1(verbose):
+    if(verbose):
+        print("***Running COSC 525 Project Code***")
     #print needed values.
     np.set_printoptions(precision=5)
 
@@ -44,7 +47,7 @@ def run_example1(verbose):
     if(verbose):
         print_nn_info(n, input)
         print("\nTraining...\n")
-        
+
     n.train(input, output)
 
     if(verbose):

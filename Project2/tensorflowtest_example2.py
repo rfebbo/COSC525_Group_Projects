@@ -63,6 +63,8 @@ def print_model_info(model,input_img):
 
 
 def run_tf_example2(verbose):
+    if(verbose):
+        print("\n***RUNNING TENSORFLOW***")
     #Create a feed forward network
     model=Sequential()
 

@@ -30,6 +30,8 @@ def print_nn_wandb(NN, input):
     print("final output: ", NN.out[3])
 
 def run_example2(verbose):
+    if(verbose):
+        print("***Running COSC 525 Project Code***")
     #print needed values.
     np.set_printoptions(precision=5)
 

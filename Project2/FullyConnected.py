@@ -32,15 +32,13 @@ class FullyConnected:
     #calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
     def calculate(self, input):
         self.out = []
-        # print("input",input)
+        
         for n in (self.neurons):
             n_output = n.activate(n.calculate(input))
             n.activationderivative()
-            # print("n_output",n_output)
             self.out.append(n_output)
 
         return self.out
-        # print('calculate') 
         
     #given the next layer's w*delta, should run through the neurons calling calcpartialderivative() for 
     # each (with the correct value), sum up its ownw*delta (just delta?), 
@@ -50,8 +48,6 @@ class FullyConnected:
 
         for i, n in enumerate(self.neurons):
             w_delta.append(n.calcpartialderivative(wtimesdelta[i]))
-            
-            # print("neuron: ", i, " weights: ", n.weights, "bias: ", n.bias)
             n.updateweight()
 
         self.update_weights()

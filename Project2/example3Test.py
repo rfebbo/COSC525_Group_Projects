@@ -26,6 +26,8 @@ def print_nn_output(NN, input):
     print("final output: ", NN.out[3])
 
 def run_example3(verbose):
+    if(verbose):
+        print("***Running COSC 525 Project Code***")
 
     #print needed values.
     np.set_printoptions(precision=5)
@@ -62,8 +64,6 @@ def run_example3(verbose):
     if(verbose):
         print_nn_output(n,input)
         print(f"loss: {n.e_total}")
-
-    
         
     l1k = np.squeeze(n.layers[0].weights)
     l1b = np.squeeze(n.layers[0].bias)

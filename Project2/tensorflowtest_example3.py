@@ -31,7 +31,7 @@ def print_model_info(model,input_img):
     layer4_out = np.expand_dims(features[3][0],axis=0)
     layer4_out = tf.squeeze(layer4_out)
     print('model output:')
-    print(model.predict(img))
+    print(model.predict(input_img))
 
     print('\n1st convolutional layer, 1st kernel weights:')
     print(np.squeeze(model.get_weights()[0][:,:,0,0]))
@@ -58,6 +58,8 @@ def print_model_info(model,input_img):
     print(np.asarray(layer4_out))
 
 def run_tf_example3(verbose):
+    if(verbose):
+        print("\n***RUNNING TENSORFLOW***")
     #print needed values.
     np.set_printoptions(precision=5)
 

@@ -36,7 +36,7 @@ class MaxPoolingLayer:
     def calculate(self, inpu):     
         self.mLoc = []
         self.out = []
-        inp = inpu[0]
+        inp = inpu[0] #get rid of extra dim that comes from conv layers
         for c in range(self.inputDim[0]):
             mLocChannel = []
             self.out.append((np.zeros((int(self.inputDim[1]/self.kernelSize), int(self.inputDim[2]/self.kernelSize)))))
@@ -84,51 +84,33 @@ class FlattenLayer:
 class NeuralNetwork:
     #initialize with the number of layers, number of neurons in each layer (vector), input size, activation (for each layer), the loss function, the learning rate and a 3d matrix of weights weights (or else initialize randomly)
     def __init__(self, inputSize, loss, lr):
-        """def __init__(self, numOfLayers, numOfNeurons, inputSize, activation, loss, lr, weights=None):
-        self.layers = []
-        for i in range(numOfLayers):
-            if weights is None:
-                self.layers.append(FullyConnected(numOfNeurons[i], activation, inputSize, lr))
-            else:
-                self.layers.append(FullyConnected(numOfNeurons[i], activation, inputSize, lr, weights[i]))
-                """
         self.layers = []
         self.loss = loss
         self.inputSize = inputSize
         self.lr = lr;
         self.last_outputShape = None
-        #self.activation = activation
-        
-        # print('constructor') 
 
     # add a layer to the neural network
     # input with layer type (FullyConnected, ConvolutionalLayer, MaxPoolingLayer, FlattenLayer)
     # call using keyword parameters
     def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None, name=None):
-        # if len(self.layers) != 0:
-        #     self.inputSize = (len(self.layers[-1].out),len(self.layers[0][0]),len(self.layers[0]))
-        # print(self.inputSize)
+        #check if we have a layer before so we can use it's input shape
         if self.last_outputShape is not None:
             inputDim = self.last_outputShape
 
         if layerType == "FullyConnected":
-            # print("FullyConnected")
             if weights is None:
                 self.layers.append(FullyConnected(numOfNeurons, activation, inputDim, self.lr, name=name))
             else:
-                self.layers.append(FullyConnected(numOfNeurons, activation, inputDim, self.lr, weights, name))
+                self.layers.append(FullyConnected(numOfNeurons, activation, inputDim, self.lr, weights, name=name))
         elif layerType == "ConvolutionLayer":
-            # print("ConvolutionalLayer")
             if weights is None:
                 self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, name=name));
             else:
-                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights, name));
+                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights=weights, name=name));
         elif layerType == "MaxPoolingLayer":
-            #print("MaxPoolingLayer")
             self.layers.append(MaxPoolingLayer(kernelSize, inputDim, name=name));
         elif layerType == "FlattenLayer":
-            # change to inputDim
-            # self.layers.append(FlattenLayer(self.inputSize));
             self.layers.append(FlattenLayer(inputDim, name=name));
         else:
             print("layerType must FullyConnected, ConvolutionalLayer, MaxPoolingLayer, or FlattenLayer")
@@ -136,6 +118,7 @@ class NeuralNetwork:
 
         self.last_outputShape = self.layers[-1].outputShape
 
+    #predict output for given input
     def predict(self, input):
         self.calculate(input)
         return self.out[-1] 
@@ -148,10 +131,7 @@ class NeuralNetwork:
         for i, l in enumerate(self.layers):
             if i == 0:
                 continue
-            # print("output",self.out)
             self.out.append(l.calculate(self.out[-1]))
-
-        # print(self.out)
 
         
     #Given a predicted output and ground truth output simply return the loss (depending on the loss function)
@@ -184,11 +164,11 @@ class NeuralNetwork:
         # calculate d_error for last layer
         d_error = self.lossderiv(self.out[-1], y)
 
-        # # calculate delta and propogate back
+        # # calculate delta and propogate it back
         wdelta = []
 
         for i, l in enumerate(reversed(self.layers)):
-            if i == 0:
+            if i == 0: #the last layer gets d_error
                 wdelta = l.calcwdeltas(d_error)
             else:
                 wdelta = l.calcwdeltas(wdelta)
@@ -200,24 +180,31 @@ if __name__=="__main__":
         #print('a good place to test different parts of your code')
         pass
 
-    elif (sys.argv[1]=='example1'):
+    verbose = False
+
+    if (len(sys.argv) == 3):
+        if(sys.argv[2] == "True"):
+            verbose = True
+
+    if (sys.argv[1]=='example1'):
         labels = ['conv3 kernel1', 'conv3 kernel1 bias', 'FC weights', 'FC bias']
-        w = EX1.run_example1(verbose=False)
-        w_test = run_tf_example1(verbose = False)
+        #run our example code and TF's example code
+        w = EX1.run_example1(verbose=verbose)
+        w_test = run_tf_example1(verbose = verbose)
 
         w = list(w)
         w_test = list(w_test)
         
         #loop through layer weights
         for i, l_w in enumerate(w):
-            w_test[i] = [w_test[i]]
+            w_test[i] = [w_test[i]] #some bias are only a single number
             mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
             print(labels[i], 'mse: ', mse)
         
     elif(sys.argv[1]=='example2'):
         labels = ['conv3_1 kernel', 'conv3_1 kernel bias', 'conv3_2 kernel', 'conv3_2 kernel bias', 'FC weights', 'FC bias']
-        w = EX2.run_example2(verbose=False)
-        w_test = run_tf_example2(verbose = False)
+        w = EX2.run_example2(verbose=verbose)
+        w_test = run_tf_example2(verbose = verbose)
 
         w = list(w)
         w_test = list(w_test)
@@ -229,8 +216,8 @@ if __name__=="__main__":
         
     elif(sys.argv[1]=='example3'):
         labels = ['conv3_1 kernel', 'conv3_1 kernel bias', 'FC weights', 'FC bias']
-        w = EX3.run_example3(verbose=False)
-        w_test = run_tf_example3(verbose = False)
+        w = EX3.run_example3(verbose=verbose)
+        w_test = run_tf_example3(verbose = verbose)
 
         w = list(w)
         w_test = list(w_test)
