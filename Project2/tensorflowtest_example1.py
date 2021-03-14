@@ -8,6 +8,8 @@ if(len(os.sys.argv) > 1):
         config = tf.config.experimental.set_memory_growth(physical_devices[0], True)
     elif os.sys.argv[1] == 'cpu':
         os.environ['CUDA_VISIBLE_DEVICES']="" 
+else:
+    os.environ['CUDA_VISIBLE_DEVICES']=""
 
 
 import numpy as np
@@ -59,7 +61,7 @@ def run_tf_example1(verbose):
     model.add(layers.Dense(1,activation='sigmoid'))
 
     # Call weight/data generating function
-    l1k1, l1b1, l2, l2b, input, output = generateExample1()
+    l1k1, l1b1, l2, input, output = generateExample1()
 
     #Set weights to desired values 
 
@@ -70,10 +72,11 @@ def run_tf_example1(verbose):
 
 
     #setting weights and bias of fully connected layer.
-    model.layers[2].set_weights([np.transpose(l2),l2b])
+    model.layers[2].set_weights(l2)
 
     #Setting input. Tensor flow is expecting a 4d array since the first dimension is the batch size (here we set it to one), and third dimension is channels
     img=np.expand_dims(input,axis=(0,3))
+    # print('SHAPE',img.shape)
 
     #print needed values.
     np.set_printoptions(precision=5)
@@ -108,4 +111,5 @@ def run_tf_example1(verbose):
 
     return l1k1, l1b1, l2, l2b
 
-
+if __name__=="__main__":
+    run_tf_example1(True)

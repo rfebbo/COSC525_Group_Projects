@@ -7,9 +7,11 @@ from Neuron import Neuron
 import example1Test as EX1
 import example2Test as EX2
 import example3Test as EX3
+import example4Test as EX4
 from tensorflowtest_example1 import run_tf_example1
 from tensorflowtest_example2 import run_tf_example2
 from tensorflowtest_example3 import run_tf_example3
+from tensorflowtest_example4 import run_tf_example4
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES']="" 
@@ -27,14 +29,18 @@ loss:
 class MaxPoolingLayer:
     def __init__(self, kernelSize, inputDim, stride=None, name=None):
         #print("Max Pooling Layer")
-        self.kernelSize = kernelSize;
+        self.kernelSize = kernelSize
         self.stride = stride
         if(stride is None):
             self.stride = kernelSize
         self.name=name
-        self.inputDim = inputDim;
+        self.inputDim = inputDim
         self.outputShape = (inputDim[0], int((self.inputDim[1]-self.kernelSize)/self.stride) + 1, int((self.inputDim[2]-self.kernelSize)/self.stride) + 1)
-        self.out = [];
+        self.out = []
+
+    def hasWeights(self):
+        return False
+        
         
     def calculate(self, inpu):     
         self.mLoc = []
@@ -69,12 +75,12 @@ class MaxPoolingLayer:
         for c in range(len(self.mLoc)):
             flat = np.asarray(wd[0]).flatten()
             for i in range(len(flat)):
-                self.newwd[c][self.mLoc[c][i][0]][self.mLoc[c][i][1]] = flat[i];
+                self.newwd[c][self.mLoc[c][i][0]][self.mLoc[c][i][1]] = flat[i]
         return self.newwd
         
 class FlattenLayer:
     def __init__(self, inputDim, name=None):
-        self.inputDim = inputDim;
+        self.inputDim = inputDim
         self.name=name
         self.outputShape = np.size(np.zeros(inputDim))
         
@@ -82,6 +88,9 @@ class FlattenLayer:
         self.out = (np.asarray(i).flatten())
         return self.out
     
+    def hasWeights(self):
+        return False
+
     def calcwdeltas(self, wd):
         return (np.reshape(wd, (self.inputDim[0], self.inputDim[1], self.inputDim[2])))
             
@@ -94,12 +103,12 @@ class NeuralNetwork:
         self.loss = loss
         self.inputSize = inputSize
         self.last_outputShape = inputSize
-        self.lr = lr;
+        self.lr = lr
 
     # add a layer to the neural network
     # input with layer type (FullyConnected, ConvolutionalLayer, MaxPoolingLayer, FlattenLayer)
     # call using keyword parameters
-    def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None, name=None, padding=None, stride=None):
+    def addLayer(self, layerType, numOfNeurons=None, activation=None, input_num = None, weights=None, numKernels=None, kernelSize=None, inputDim=None, name=None, padding=0, stride=None):
         #check if we have a layer before so we can use it's input shape
         if self.last_outputShape is not None:
             inputDim = self.last_outputShape
@@ -112,16 +121,16 @@ class NeuralNetwork:
                 self.layers.append(FullyConnected(numOfNeurons, activation, inputDim, self.lr, weights, name=name))
         elif layerType == "ConvolutionLayer":
             if weights is None:
-                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, name=name));
+                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, name=name, padding=padding))
             else:
-                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights=weights, name=name));
+                self.layers.append(ConvolutionalLayer(numKernels, kernelSize, activation, inputDim, self.lr, weights=weights, name=name, padding=padding))
         elif layerType == "MaxPoolingLayer":
-            self.layers.append(MaxPoolingLayer(kernelSize, inputDim, stride=stride, name=name));
+            self.layers.append(MaxPoolingLayer(kernelSize, inputDim, stride=stride, name=name))
         elif layerType == "FlattenLayer":
-            self.layers.append(FlattenLayer(inputDim, name=name));
+            self.layers.append(FlattenLayer(inputDim, name=name))
         else:
             print("layerType must FullyConnected, ConvolutionalLayer, MaxPoolingLayer, or FlattenLayer")
-            sys.exit();
+            sys.exit()
 
         self.last_outputShape = self.layers[-1].outputShape
 
@@ -143,17 +152,23 @@ class NeuralNetwork:
         
     #Given a predicted output and ground truth output simply return the loss (depending on the loss function)
     def calculateloss(self,yp,y):
-        if self.loss == 0:
-            return (1 / len(y)) * np.sum(((yp - y))**2)
-        else:
+        if self.loss == 'MSE': #mean squared error
+            return (1 / y.size) * np.sum(((yp - y))**2)
+        elif self.loss == 'SCCE': #sparse categorical cross entropy
             return -np.mean(y*np.log(y) + (1-yp)*np.log(1-y))
+        else:
+            print(f'Unknown Loss Funtion {self.loss}.')
+            exit()
     
     #Given a predicted output and ground truth output simply return the derivative of the loss (depending on the loss function)        
     def lossderiv(self,yp,y):
-        if self.loss == 0:
+        if self.loss == 'MSE': #mean squared error
             return -2 * (y - yp)
-        else:
+        elif self.loss == 'SCCE': #sparse categorical cross entropy
             return -y/yp + (1-y)/(1-yp)
+        else:
+            print(f'Unknown Loss Funtion {self.loss}.')
+            exit()
 
     def update_weights(self):
         for l in self.layers:
@@ -169,8 +184,8 @@ class NeuralNetwork:
         self.e_total = self.calculateloss(self.out[-1], y)
 
         # calculate d_error for last layer
-        d_error = self.lossderiv(self.out[-1], y)
-
+        d_error = self.lossderiv(self.out[-1], y).flatten()
+        # print('d_error shape: ', d_error.shape)
         # # calculate delta and propogate it back
         wdelta = []
 
@@ -185,12 +200,13 @@ class NeuralNetwork:
 if __name__=="__main__":
     if (len(sys.argv)<2):
         #print('a good place to test different parts of your code')
-        pass
+        print('Please provide an argument: "example1", "example2"... up to "example4"')
+        exit()
 
     verbose = False
 
     if (len(sys.argv) == 3):
-        if(sys.argv[2] == "True"):
+        if(sys.argv[2].lower() == "true"):
             verbose = True
 
     if (sys.argv[1]=='example1'):
@@ -204,8 +220,9 @@ if __name__=="__main__":
         
         #loop through layer weights
         for i, l_w in enumerate(w):
-            w_test[i] = [w_test[i]] #some bias are only a single number
-            mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
+            w_test_np = np.asarray(w_test[i])
+            l_w_np = np.asarray(l_w)
+            mse = (1 / w_test_np.size) * np.sum(((l_w_np - w_test_np))**2)
             print(labels[i], 'mse: ', mse)
         
     elif(sys.argv[1]=='example2'):
@@ -217,8 +234,9 @@ if __name__=="__main__":
         w_test = list(w_test)
 
         for i, l_w in enumerate(w):
-            w_test[i] = [w_test[i]]
-            mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
+            w_test_np = np.asarray(w_test[i])
+            l_w_np = np.asarray(l_w)
+            mse = (1 / w_test_np.size) * np.sum(((l_w_np - w_test_np))**2)
             print(labels[i], 'mse: ', mse)
         
     elif(sys.argv[1]=='example3'):
@@ -231,6 +249,23 @@ if __name__=="__main__":
 
         #loop through layer weights
         for i, l_w in enumerate(w):
-            w_test[i] = [w_test[i]]
-            mse = (1 / len(w_test[i])) * np.sum(((l_w - w_test[i]))**2)
+            w_test_np = np.asarray(w_test[i])
+            l_w_np = np.asarray(l_w)
+            mse = (1 / w_test_np.size) * np.sum(((l_w_np - w_test_np))**2)
             print(labels[i], 'mse: ', mse)
+    elif(sys.argv[1]=='example4'):
+        labels = ['conv3_1 kernel', 'conv3_1 kernel bias', 'FC 1 weights', 'FC 1 bias', 'FC 2 weights', 'FC 2 bias']
+        w = EX4.run_example4(verbose=verbose)
+        w_test = run_tf_example4(verbose = verbose)
+
+        w = list(w)
+        w_test = list(w_test)
+
+        #loop through layer weights
+        for i, l_w in enumerate(w):
+            w_test_np = np.asarray(w_test[i])
+            l_w_np = np.asarray(l_w)
+            mse = (1 / w_test_np.size) * np.sum(((l_w_np - w_test_np))**2)
+            print(labels[i], 'mse: ', mse)
+    else:
+        print('Please provide an argument: "example1", "example2"... up to "example4"')

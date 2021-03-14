@@ -32,8 +32,8 @@ def run_example3(verbose):
     #print needed values.
     np.set_printoptions(precision=5)
 
-    n = NN.NeuralNetwork((1,8,8), 0, 100)
-    l1k1,l1k2,l1b1,l1b2,l2,l2b,input,output = generateExample3()
+    n = NN.NeuralNetwork((1,8,8), 'MSE', 100)
+    l1k1,l1k2,l1b1,l1b2,l2,input,output = generateExample3()
 
     #input
     input = input.reshape(1,1,8,8)
@@ -42,16 +42,11 @@ def run_example3(verbose):
     l1k = np.append(l1k1, l1k2, axis=0)
     l1k = l1k.reshape((2,1,3,3))
     l1_weights = [l1k,np.asarray([l1b1,l1b2])]
-    
-    l2_weights = []
-    for i in range(len(l2[0])):
-        l2_weights.append(l2[0][i])
-    l2_weights.append(l2b[0])
 
-    n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 1, weights=l1_weights, name='conv3')
+    n.addLayer("ConvolutionLayer", numKernels = 2, kernelSize = (3,3), activation = 'sigmoid', weights=l1_weights, name='conv3')
     n.addLayer("MaxPoolingLayer", kernelSize=2, name='maxpool2')
     n.addLayer("FlattenLayer", name='flatten')
-    n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[l2_weights], name='fullyconnected')
+    n.addLayer("FullyConnected", numOfNeurons=1, activation='sigmoid', weights=l2, name='fullyconnected')
 
 
 

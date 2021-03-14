@@ -8,11 +8,14 @@ class FullyConnected:
         self.input_num = input_num
         self.lr = lr
         self.name=name
+        self.activation = activation
         self.num_neurons = numOfNeurons
+        print('creating neurons for layer: ', name)
         if weights is None:
             self.neurons = [Neuron(activation, input_num, lr) for i in range(numOfNeurons)]
         else:
-            self.neurons = [Neuron(activation, input_num, lr, weights[i]) for i in range(numOfNeurons)]
+            # self.neurons = [Neuron(activation, input_num, lr, [weights[0][i,:],weights[1][i]]) for i in range(numOfNeurons)]
+            self.neurons = [Neuron(activation, input_num, lr, [weights[0][:,i],weights[1][i]]) for i in range(numOfNeurons)]
         
         self.outputShape = numOfNeurons
         self.update_weights()
@@ -26,28 +29,47 @@ class FullyConnected:
         for i, n in enumerate(self.neurons):
             self.weights[i] = n.weights
             self.bias[i] = n.bias
-        self.weights = np.asarray(self.weights)
+        self.weights = np.transpose(np.asarray(self.weights))
         self.bias = np.asarray(self.bias)
         
     #calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
     def calculate(self, input):
-        self.out = []
+        self.net = np.empty((self.num_neurons))
         
-        for n in (self.neurons):
-            n_output = n.activate(n.calculate(input))
-            n.activationderivative()
-            self.out.append(n_output)
+        for i, n in enumerate(self.neurons):
+            self.net[i] = n.calculate(input)
+
+        if self.activation.lower() == 'linear':
+            self.out = self.net
+            self.dactive = self.net
+        elif self.activation.lower() == 'sigmoid':
+            self.out = 1 / (1 + np.exp(-self.net))
+            self.dactive = self.out * (1 - self.out)
+        elif self.activation.lower() == 'relu':
+            self.out = np.fmax(0, self.net)
+            self.dactive = (self.net > 0) * 1
+        elif self.activation.lower() == 'softmax':
+            exp = np.exp(self.net)
+            self.out = exp / np.sum(exp)
+            self.dactive = self.out * (1 - self.out)
+        else:
+            print(f'Unknown Activation Function {self.activation}')
+            exit()
 
         return self.out
         
+    def hasWeights(self):
+        return True
     #given the next layer's w*delta, should run through the neurons calling calcpartialderivative() for 
     # each (with the correct value), sum up its ownw*delta (just delta?), 
     # and then update the wieghts (using the updateweight() method). I should return the sum of w*delta.          
     def calcwdeltas(self, wtimesdelta):
         w_delta = []
 
+        print('dactive shape: ', self.dactive.shape)
+        print('wtimesdelta shape: ', wtimesdelta.shape)
         for i, n in enumerate(self.neurons):
-            w_delta.append(n.calcpartialderivative(wtimesdelta[i]))
+            w_delta.append(n.calcpartialderivative(wtimesdelta[i], self.dactive[i]))
             n.updateweight()
 
         self.update_weights()

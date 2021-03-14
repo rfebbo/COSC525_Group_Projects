@@ -75,7 +75,7 @@ def run_tf_example2(verbose):
     model.add(layers.Dense(1,activation='sigmoid'))
 
     # Call weight/data generating function
-    l1k1,l1k2,l1b1,l1b2,l2c1,l2c2,l2b,l3,l3b,input, output = generateExample2()
+    l1k1,l1k2,l1b1,l1b2,l2c1,l2c2,l2b,l3,input, output = generateExample2()
 
     #Set weights to desired values 
 
@@ -84,6 +84,7 @@ def run_tf_example2(verbose):
     l1k2=l1k2.reshape(3,3,1,1)
 
     w1=np.concatenate((l1k1,l1k2),axis=3)
+    
     model.layers[0].set_weights([w1,np.array([l1b1[0],l1b2[0]])]) #Shape of weight matrix is (w,h,input_channels,kernels)
 
 
@@ -95,7 +96,7 @@ def run_tf_example2(verbose):
     model.layers[1].set_weights([w1,l2b])
 
     #setting weights and bias of fully connected layer.
-    model.layers[3].set_weights([np.transpose(l3),l3b])
+    model.layers[3].set_weights(l3)
 
     #Setting input. Tensor flow is expecting a 4d array since the first dimension is the batch size (here we set it to one), and third dimension is channels
     img=np.expand_dims(input,axis=(0,3))
@@ -127,3 +128,5 @@ def run_tf_example2(verbose):
 
     return l1k, l1b, l2k, l2b, l4, l4b
 
+if __name__=="__main__":
+    run_tf_example2(True)

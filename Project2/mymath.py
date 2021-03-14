@@ -38,7 +38,7 @@ def convolve_2d(x, f, b, stride, padding):
                     for c_f in range(Cf):
                         for h_f in range(Hf):
                             for w_f in range(Wf):
-                                h_i = h_o * stride - padding + h_f
+                                h_i = h_o * stride - padding + h_f 
                                 w_i = w_o * stride - padding + w_f
 
                                 if (h_i < Hi and w_i < Wi and h_i >= 0 and w_i >= 0):

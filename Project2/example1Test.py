@@ -17,7 +17,7 @@ def print_nn_info(NN,input):
 
     print('\nfully connected layer weights:')
     NN.layers[2].update_weights()
-    print(NN.layers[2].weights)
+    print(np.squeeze(NN.layers[2].weights))
     print('fully connected layer bias:')
     print(NN.layers[2].bias)
     
@@ -29,19 +29,17 @@ def run_example1(verbose):
     #print needed values.
     np.set_printoptions(precision=5)
 
-    n = NN.NeuralNetwork((1,5, 5), 0, 100)
-    l1k1, l1b1, l2, l2b, input, output = generateExample1()
+    n = NN.NeuralNetwork((1,5, 5), loss="MSE", lr=100)
+    l1k1, l1b1, l2, input, output = generateExample1()
+
     input1 = [[input]]
     l1k1=l1k1.reshape(1,1,3,3)
     weights = ([l1k1,np.array([l1b1[0]])])
-    fullyconnectedweights  = []
-    for i in range(len(l2[0])):
-        fullyconnectedweights.append(l2[0][i])
-    fullyconnectedweights.append(l2b[0])
+    
 
-    n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 1, weights=weights)
+    n.addLayer("ConvolutionLayer", numKernels = 1, kernelSize = (3,3), activation = 'sigmoid', weights=weights, name='conv1')
     n.addLayer("FlattenLayer")
-    n.addLayer("FullyConnected", numOfNeurons=1, activation=1, weights=[fullyconnectedweights])
+    n.addLayer("FullyConnected", numOfNeurons=1, activation='sigmoid', weights=l2, name='fully connected 1')
 
     input = np.reshape(input, (1,1,5,5))
     if(verbose):
@@ -61,5 +59,7 @@ def run_example1(verbose):
 
     return l1k1, l1b1, l2, l2b
 
-
+    
+if __name__=="__main__":
+    run_example1(True)
 

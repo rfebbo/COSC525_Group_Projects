@@ -14,39 +14,40 @@ class Neuron:
     # len(weights) should = intput_num + 1
     def __init__(self,activation, input_num, lr, weights=None):
         #print('constructor')    
-        self.activation = activation;
-        self.input_num = input_num;
-        self.lr = lr;
+        self.activation = activation
+        self.input_num = input_num
+        self.lr = lr
+        print('got weights: ', weights)
         # determine weights either randomly or with inputs
         if weights is None:
-           self.weights = np.random.rand(input_num);
-           self.bias = float(np.random.rand(1));
-        elif len(weights) == input_num + 1:
-            self.bias = weights[-1];
-            self.weights = np.asarray(weights[:-1]);
+           self.weights = np.random.rand(input_num)
+           self.bias = float(np.random.rand(1))
+        elif len(weights[0]) == input_num:
+            self.bias = weights[1]
+            self.weights = np.asarray(weights[0])
             # print(self.bias)
         else:
-            print(input_num)
-            print(weights.shape)
+            print('Neuron:')
+            print('expected: ', input_num)
+            print('got: ', self.weights.shape)
 
             # print("len(weights) = input_num + 1")
-            sys.exit();
+            sys.exit()
            
         
        
     #This method returns the activation of the net
     def activate(self,net):
-        #print('activate')   
-        # linear
-        # f(x) = x
-        if self.activation == 0:
-            self.out = self.net;
-        
-        # logistic
-        # f(x) = 1 / (1 + e^(-x))
+
+        if self.activation == 'linear':
+            self.out = self.net
+        elif self.activation == 'sigmoid':
+            self.out = 1 / (1 + np.exp(-self.net))
+        elif self.activation.lower() == 'relu':
+            self.out = np.fmax(0, self.net)
         else:
-            #print("logistic")
-            self.out = 1 / (1 + np.exp(-net))
+            print(f'Unknown Activation Function {self.activation}')
+            exit()
 
         return self.out
     
@@ -60,33 +61,33 @@ class Neuron:
             print(input)
             print(input.shape)
             print(self.input_num)
-            sys.exit();
-        self.input = input;
-        self.net = np.dot(self.input,self.weights) + self.bias;
+            sys.exit()
+        self.input = input
+        self.net = np.dot(self.input,self.weights) + self.bias
         return self.net
         
 
-    #This method returns the derivative of the activation function with respect to the net   
-    def activationderivative(self):
-        #print('activationderivative')
-        # linear
-        # df(x) = 1
-        if(self.activation == 0):
-            self.dactive = self.out;
-        
-        # logistic
-        # df(x) = out(1 - out)
-        else:
-            self.dactive = self.out * (1 - self.out);
+    # #This method returns the derivative of the activation function with respect to the net   
+    # def activationderivative(self):
 
-        return self.dactive
+    #     if self.activation == 'linear':
+    #         self.dactive = self.out
+    #     elif self.activation == 'sigmoid':
+    #         self.dactive = self.out * (1 - self.out)
+    #     elif self.activation.lower() == 'relu':
+    #         self.dactive = (self.net > 0) * 1
+    #     else:
+    #         print(f'Unknown Activation Function {self.activation}')
+    #         exit()
+
+    #     return self.dactive
         
     
     #This method calculates the partial derivative for each weight and returns the delta*w to be used in the previous layer
-    def calcpartialderivative(self, wtimesdelta):
-        self.activationderivative()
+    def calcpartialderivative(self, wtimesdelta, dactive):
+        # self.activationderivative()
 
-        self.delta = wtimesdelta * self.dactive
+        self.delta = wtimesdelta * dactive
         self.d_error = self.delta * self.input
 
         return self.delta * self.weights
@@ -94,6 +95,6 @@ class Neuron:
     #Simply update the weights using the partial derivatives and the learning weight
     def updateweight(self):
         # print('updateweight')
-        self.weights = self.weights - (self.lr * self.d_error);
-        self.bias = self.bias - (self.lr * self.delta);
+        self.weights = self.weights - (self.lr * self.d_error)
+        self.bias = self.bias - (self.lr * self.delta)
         # print(self.bias)

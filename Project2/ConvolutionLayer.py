@@ -10,6 +10,19 @@ class ConvolutionalLayer:
         self.name=name
         self.kernelSize = kernelSize
         self.activation = activation
+
+        if(padding is None):
+            self.padding = 0
+        else:
+            self.padding = padding
+
+        if(stride is None):
+            self.stride = stride
+        else:
+            self.stride = stride
+
+
+        print("input dim: ", inputDim)
         if(len(inputDim) == 3): # the conv code is setup for 4D for batches but nothing else is so this needs to be checked
             inputDim = (1, inputDim[0], inputDim[1], inputDim[2])
         self.inputDim = inputDim
@@ -19,7 +32,7 @@ class ConvolutionalLayer:
         #initialize weights
         if weights is None:
             self.weights = np.random.random_sample(self.weightsShape)
-            self.bias = [float(np.random.rand(numKernels))]
+            self.bias = [(np.random.rand(numKernels))]
         else: #removed error checking!
             self.bias = weights[-1]
             self.weights = np.asarray(weights[:-1]).reshape((self.weightsShape))
@@ -36,14 +49,18 @@ class ConvolutionalLayer:
             sys.exit()
 
         # determine output shape size
+        print('hf: ', Hf)
+        print('padding: ', self.padding)
+        print('stride: ', self.stride)
+        print('inputDim[2]: ', self.inputDim[2])
         self.padding = padding
         self.stride = stride
-        No = inputDim[0]
+        No = self.inputDim[0]
         Co = Nf
-        Ho = int((inputDim[2] - Hf + self.padding * 2 + self.stride)  / self.stride)
-        Wo = int((inputDim[3] - Wf + self.padding * 2 + self.stride) / self.stride)
+        Ho = int((self.inputDim[2] - Hf + self.padding * 2 + self.stride)  / self.stride)
+        Wo = int((self.inputDim[3] - Wf + self.padding * 2 + self.stride) / self.stride)
         self.outputShape = (Co, Ho, Wo)
-
+ 
         #we didn't end up using Neuron objects :(
         # self.neurons = [None] * Co
 
@@ -59,22 +76,32 @@ class ConvolutionalLayer:
 
 #calcualte the output of all the neurons in the layer and return a vector with those values (go through the neurons and call the calcualte() method)      
     def calculate(self, input):
-        self.input = input
+        self.input = input.reshape(self.inputDim)
+        
 
         #use custom conv function to do convolution and get net
-        self.net = convolve_2d(input, self.weights, self.bias, self.stride, self.padding)
+        self.net = convolve_2d(self.input, self.weights, self.bias, self.stride, self.padding)
         
         #calculate out and dactive depending on activation
-        if (self.activation == 1):
+        if (self.activation == 'sigmoid'):
             self.out = 1 / (1 + np.exp(-self.net))
             self.dactive = self.out * (1 - self.out)
-        else:
+        elif self.activation == 'linear':
             self.dactive = self.out = self.net
+        elif self.activation.lower() == 'relu':
+            self.out = np.fmax(0, self.net)
+            self.dactive = (self.net > 0) * 1
+        else:
+            print(f'Unknown Activation Function {self.activation}')
+            exit()
 
         return self.out
         
     def update_weights(self):
         pass
+
+    def hasWeights(self):
+        return True
             
     #given the next layer's w*delta, uses conv2d function to calculate the delta
     # of this layers neurons, and to calculate wtimesdelta to send back to the previous layer. 
