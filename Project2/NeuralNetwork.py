@@ -112,7 +112,7 @@ class NeuralNetwork:
         #check if we have a layer before so we can use it's input shape
         if self.last_outputShape is not None:
             inputDim = self.last_outputShape
-            print("last shape = ", inputDim)
+            # print("last shape = ", inputDim)
 
         if layerType == "FullyConnected":
             if weights is None:
@@ -163,7 +163,7 @@ class NeuralNetwork:
     #Given a predicted output and ground truth output simply return the derivative of the loss (depending on the loss function)        
     def lossderiv(self,yp,y):
         if self.loss == 'MSE': #mean squared error
-            return -2 * (y - yp)
+            return 2 * (yp - y)
         elif self.loss == 'SCCE': #sparse categorical cross entropy
             return -y/yp + (1-y)/(1-yp)
         else:
@@ -184,7 +184,7 @@ class NeuralNetwork:
         self.e_total = self.calculateloss(self.out[-1], y)
 
         # calculate d_error for last layer
-        d_error = self.lossderiv(self.out[-1], y).flatten()
+        d_error = np.transpose(self.lossderiv(self.out[-1], y))
         # print('d_error shape: ', d_error.shape)
         # # calculate delta and propogate it back
         wdelta = []

@@ -34,6 +34,41 @@ def print_model_info(model,input_img, output, loss):
     layer4_out = np.expand_dims(features[3][0],axis=0)
     layer4_out = tf.squeeze(layer4_out)
 
+    layer = tf.keras.layers.Dense(2, activation='sigmoid')
+    # x = tf.constant([[1., 2., 3.]])
+    # print("X",x)
+    # with tf.GradientTape() as tape:
+    # # Forward pass
+    #     y = layer(x)
+    #     loss = tf.reduce_mean(y**2)
+
+    # # Calculate gradients with respect to every trainable variable
+    # grad = tape.gradient(loss, layer.trainable_variables)
+    # for var, g in zip(layer.trainable_variables, grad):
+    #     print(f'{var.name}, shape: {g.shape}')
+
+
+    # layer = model.layers[3]
+    x = tf.constant(layer3_out.numpy().reshape(1,2))
+    # print(model.get_weights()[4])
+    # print(model.get_weights()[5])
+    # print(np.append(model.get_weights()[4][0,:  ],model.get_weights()[5]))
+    # x = tf.constant([model.get_weights()[4],model.get_weights()[5]])
+    
+    # layer.output
+    print("X",x)
+    with tf.GradientTape() as tape:
+        # Forward pass
+        y = layer(x)
+        loss1 = tf.reduce_mean(y**2)
+
+    layer.set_weights([model.get_weights()[4],model.get_weights()[5]])
+    grad = tape.gradient(loss1, layer.output)
+
+    for var, g in zip(layer.output, grad):
+        print(f'{var.name}, shape: {g}')
+
+
     print('\n1st convolutional layer, 1st kernel weights:')
     print(np.squeeze(model.get_weights()[0][:,:,0,0]))
     print('1st convolutional layer, 1st kernel bias:')
@@ -72,7 +107,6 @@ def run_tf_example4(verbose):
 
     #Create a feed forward network
     model=Sequential()
-    #model.add(layers.Conv2D(2,3,input_shape=(7,7,1),activation='sigmoid')) 
     model.add(layers.Conv2D(1,2,input_shape=(3,3,1),activation='sigmoid'))
     model.add(layers.Flatten())
     model.add(layers.Dense(2,activation='sigmoid'))

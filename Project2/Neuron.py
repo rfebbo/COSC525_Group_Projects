@@ -17,7 +17,7 @@ class Neuron:
         self.activation = activation
         self.input_num = input_num
         self.lr = lr
-        print('got weights: ', weights)
+        # print('got weights: ', weights)
         # determine weights either randomly or with inputs
         if weights is None:
            self.weights = np.random.rand(input_num)
@@ -37,19 +37,19 @@ class Neuron:
         
        
     #This method returns the activation of the net
-    def activate(self,net):
+    # def activate(self,net):
 
-        if self.activation == 'linear':
-            self.out = self.net
-        elif self.activation == 'sigmoid':
-            self.out = 1 / (1 + np.exp(-self.net))
-        elif self.activation.lower() == 'relu':
-            self.out = np.fmax(0, self.net)
-        else:
-            print(f'Unknown Activation Function {self.activation}')
-            exit()
+    #     if self.activation == 'linear':
+    #         self.out = self.net
+    #     elif self.activation == 'sigmoid':
+    #         self.out = 1 / (1 + np.exp(-self.net))
+    #     elif self.activation.lower() == 'relu':
+    #         self.out = np.fmax(0, self.net)
+    #     else:
+    #         print(f'Unknown Activation Function {self.activation}')
+    #         exit()
 
-        return self.out
+    #     return self.out
     
         
     #Calculate the output of the neuron should save the input and output for back-propagation.   

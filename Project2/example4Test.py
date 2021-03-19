@@ -34,7 +34,7 @@ def print_nn_output(NN, input, output):
 
     print("loss: ", NN.calculateloss(NN.out[3], output))
     
-    # print("d_loss/d_y : ", NN.lossderiv(NN.out[3], output))
+    print("d_loss/d_y : ", NN.lossderiv(NN.out[3], output))
 
 def run_example4(verbose):
     if(verbose):
@@ -43,7 +43,6 @@ def run_example4(verbose):
     #print needed values.
     np.set_printoptions(precision=5)
 
-    n = NN.NeuralNetwork((1,8,8), 0, 100)
     l1,l3,l4,input,output = generateExample4()
 
     #input
@@ -64,7 +63,6 @@ def run_example4(verbose):
 
     if(verbose):
         print_nn_output(n, input, output)
-        print(f"loss: {n.e_total}")
         
     l1k = np.squeeze(n.layers[0].weights)
     l1b = np.squeeze(n.layers[0].bias)

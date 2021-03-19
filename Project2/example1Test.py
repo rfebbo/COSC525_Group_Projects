@@ -32,7 +32,6 @@ def run_example1(verbose):
     n = NN.NeuralNetwork((1,5, 5), loss="MSE", lr=100)
     l1k1, l1b1, l2, input, output = generateExample1()
 
-    input1 = [[input]]
     l1k1=l1k1.reshape(1,1,3,3)
     weights = ([l1k1,np.array([l1b1[0]])])
     

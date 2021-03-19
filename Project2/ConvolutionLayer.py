@@ -22,7 +22,7 @@ class ConvolutionalLayer:
             self.stride = stride
 
 
-        print("input dim: ", inputDim)
+        # print("input dim: ", inputDim)
         if(len(inputDim) == 3): # the conv code is setup for 4D for batches but nothing else is so this needs to be checked
             inputDim = (1, inputDim[0], inputDim[1], inputDim[2])
         self.inputDim = inputDim
@@ -49,10 +49,10 @@ class ConvolutionalLayer:
             sys.exit()
 
         # determine output shape size
-        print('hf: ', Hf)
-        print('padding: ', self.padding)
-        print('stride: ', self.stride)
-        print('inputDim[2]: ', self.inputDim[2])
+        # print('hf: ', Hf)
+        # print('padding: ', self.padding)
+        # print('stride: ', self.stride)
+        # print('inputDim[2]: ', self.inputDim[2])
         self.padding = padding
         self.stride = stride
         No = self.inputDim[0]
