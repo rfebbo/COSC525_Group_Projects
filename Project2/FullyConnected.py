@@ -10,7 +10,7 @@ class FullyConnected:
         self.name=name
         self.activation = activation
         self.num_neurons = numOfNeurons
-        print('creating neurons for layer: ', name)
+        # print('creating neurons for layer: ', name)
         if weights is None:
             self.neurons = [Neuron(activation, input_num, lr) for i in range(numOfNeurons)]
         else:
@@ -66,8 +66,8 @@ class FullyConnected:
     def calcwdeltas(self, wtimesdelta):
         w_delta = []
 
-        print('dactive shape: ', self.dactive.shape)
-        print('wtimesdelta shape: ', wtimesdelta.shape)
+        # print('dactive shape: ', self.dactive.shape)
+        # print('wtimesdelta shape: ', wtimesdelta.shape)
         for i, n in enumerate(self.neurons):
             w_delta.append(n.calcpartialderivative(wtimesdelta[i], self.dactive[i]))
             n.updateweight()
