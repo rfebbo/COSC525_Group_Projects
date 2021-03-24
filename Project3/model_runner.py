@@ -15,7 +15,7 @@ def run_model(builder, name, n_classes, lr, momentum, x, y, val_data, batch_size
     model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
     history=model.fit(x,y,validation_data=val_data,batch_size=batch_size,epochs=epochs, verbose=True)
 
-    pd.DataFrame.from_dict(history.history,orient='index').to_csv(name + '(lr_' + str(lr) + ')(batch_' + str(batch_size) + ')(epoch_' + str(epochs) + ')' + '.csv')
+    pd.DataFrame.from_dict(history.history,orient='index').to_csv('./saved_runs/'+name + '(lr_' + str(lr) + ')(batch_' + str(batch_size) + ')(epoch_' + str(epochs) + ')' + '.csv')
 
 def run_all_models(builder, name, d, lr, momentum, batch_size, epochs):
     # run race network
