@@ -27,14 +27,24 @@ def read_imgs(path):
 
     return np.asarray(images)
 
-def encode(labels):
+def encode(train, val):
 
-    codes, _ = labels.factorize()
-    encoded_labels = np.zeros((len(codes), len(labels.unique())))
-    for i, c in enumerate(codes):
-        encoded_labels[i,c] = 1
+    t_codes, t_uniques = train.factorize()
+    train_labels = np.zeros((len(t_codes), len(train.unique())))
 
-    return encoded_labels
+    for i, c in enumerate(t_codes):
+        train_labels[i,c] = 1
+
+    v_codes, v_uniques = val.factorize()
+    val_labels = np.zeros((len(v_codes), len(val.unique())))
+
+    t_uniques = list(t_uniques)
+    v_uniques = list(v_uniques)
+    
+    for i, c in enumerate(v_codes):
+        val_labels[i,t_uniques.index(v_uniques[c])] = 1
+
+    return train_labels, val_labels
 
 def read_data():
     
@@ -60,15 +70,10 @@ def read_data():
     gender_classes = train_labels.gender.unique()
     race_classes = train_labels.race.unique()
 
-    #encode training labels
-    age_t_labels = encode(train_labels.age)
-    gender_t_labels = encode(train_labels.gender)
-    race_t_labels = encode(train_labels.race)
-
-    #encode validation labels
-    age_v_labels = encode(val_labels.age)
-    gender_v_labels = encode(val_labels.gender)
-    race_v_labels = encode(val_labels.race)
+    #one hot encode labels
+    age_t_labels, age_v_labels = encode(train_labels.age, val_labels.age)
+    gender_t_labels, gender_v_labels = encode(train_labels.gender, val_labels.gender)
+    race_t_labels, race_v_labels = encode(train_labels.race, val_labels.race)
 
     dataset = {
         'train' : train_norm, 

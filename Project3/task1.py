@@ -39,7 +39,7 @@ def build_network_1(n_output):
 
     return model
 
-def main():
+def test_network_1():
     d = read_data()
 
     lrs = [0.01, 0.05, 0.1]
@@ -51,4 +51,4 @@ def main():
 
 
 if __name__=="__main__":
-    main()
+    test_network_1()
