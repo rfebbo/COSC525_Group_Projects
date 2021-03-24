@@ -24,7 +24,7 @@ else:
     os.environ['CUDA_VISIBLE_DEVICES']=""
 
 
-def build_network(n_output):
+def build_network_1(n_output):
     model=Sequential()
 
     # Add convolutional layers, flatten, and fully connected layer
@@ -40,13 +40,18 @@ def build_network(n_output):
 def main():
     dataset = read_data()
 
-    sgd = optimizers.SGD(lr=0.005)
-    loss = tf.keras.losses.CategoricalCrossentropy()
+    sgd = optimizers.SGD(lr=0.05)
+    loss = tf.keras.losses.BinaryCrossentropy()
 
     # create race class
-    model = build_network(7)
+    # model = build_network(7)
+    # model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
+    # history=model.fit(dataset['train_norm'],dataset['race_t_labels'],validation_data=(dataset['val_norm'],dataset['race_v_labels']),batch_size=4096,epochs=100, verbose=True)
+
+    # create gender class
+    model = build_network_1(2)
     model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    history=model.fit(dataset['train_norm'],dataset['race_t_labels'],validation_data=(dataset['val_norm'],dataset['race_v_labels']),batch_size=4096,epochs=100, verbose=True)
+    history=model.fit(dataset['train_norm'],dataset['gender_t_labels'],validation_data=(dataset['val_norm'],dataset['gender_v_labels']),batch_size=64,epochs=100, verbose=True)
 
 
 if __name__=="__main__":

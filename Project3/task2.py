@@ -24,7 +24,7 @@ else:
     os.environ['CUDA_VISIBLE_DEVICES']=""
 
 
-def build_network(n_output):
+def build_network_2(n_output):
     model=Sequential()
 
     # Add convolutional layers, flatten, and fully connected layer
@@ -44,9 +44,9 @@ def main():
     loss = tf.keras.losses.CategoricalCrossentropy()
 
     # create race class
-    model = build_network(7)
+    model = build_network_2(7)
     model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    history=model.fit(dataset['train_norm'],dataset['race_t_labels'],validation_data=(dataset['val_norm'],dataset['race_v_labels']),batch_size=2048,epochs=100, verbose=True)
+    history=model.fit(dataset['train_norm'],dataset['race_t_labels'],validation_data=(dataset['val_norm'],dataset['race_v_labels']),batch_size=32,epochs=100, verbose=True)
 
 
 if __name__=="__main__":

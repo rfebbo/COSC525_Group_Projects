@@ -3,20 +3,34 @@ import os
 from PIL import Image
 import pandas as pd
 
+import re
+
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [ atoi(c) for c in re.split(r'(\d+)', text) ]
+
+def read_imgs(path):
+    files = os.listdir(path)
+    files.sort(key=natural_keys)
+
+    images = []
+    for file in files:
+        pix = np.array(Image.open(path + file))
+        images.append(pix)
+
+    return np.asarray(images)
+
 def read_data():
-    train = []
-    val = []
-
-    for file in os.listdir('./project3_COSC525/val'):
-        pix = np.array(Image.open('./project3_COSC525/val/' + file))
-        val.append(pix)
-
-    for file in os.listdir('./project3_COSC525/train'):
-        pix = np.array(Image.open('./project3_COSC525/train/' + file))
-        train.append(pix)
-
-    train = np.asarray(train)
-    val = np.asarray(val)
+    
+    train = read_imgs('./project3_COSC525/train/')
+    val = read_imgs('./project3_COSC525/val/')
 
     train_max = np.amax(train, axis=0)
     train_min = np.amin(train, axis=0)
