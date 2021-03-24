@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import os
 from PIL import Image
+import pandas as pd
 
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
@@ -23,11 +24,13 @@ if(len(os.sys.argv) > 1):
 else:
     os.environ['CUDA_VISIBLE_DEVICES']=""
 
+from model_runner import run_all_models
+
 
 def build_network_1(n_output):
     model=Sequential()
 
-    # Add convolutional layers, flatten, and fully connected layer
+    # Add fully connected layer
     model.add(layers.Flatten())
     model.add(layers.Dense(1024,activation='tanh'))
     model.add(layers.Dense(512,activation='sigmoid'))
@@ -36,22 +39,13 @@ def build_network_1(n_output):
 
     return model
 
-
 def main():
-    dataset = read_data()
+    d = read_data()
 
-    sgd = optimizers.SGD(lr=0.05)
-    loss = tf.keras.losses.BinaryCrossentropy()
-
-    # create race class
-    # model = build_network(7)
-    # model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    # history=model.fit(dataset['train_norm'],dataset['race_t_labels'],validation_data=(dataset['val_norm'],dataset['race_v_labels']),batch_size=4096,epochs=100, verbose=True)
-
-    # create gender class
-    model = build_network_1(2)
-    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    history=model.fit(dataset['train_norm'],dataset['gender_t_labels'],validation_data=(dataset['val_norm'],dataset['gender_v_labels']),batch_size=64,epochs=100, verbose=True)
+    lr = 0.05
+    batch_size = 128
+    epochs = 100
+    run_all_models(build_network_1, 'Task_1', d, lr, batch_size, epochs)
 
 
 if __name__=="__main__":

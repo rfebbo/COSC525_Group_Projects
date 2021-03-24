@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import os
 from PIL import Image
+import pandas as pd
 
 from tensorflow import keras
 from tensorflow.keras.models import Sequential
@@ -24,6 +25,9 @@ else:
     os.environ['CUDA_VISIBLE_DEVICES']=""
 
 
+from model_runner import run_all_models
+
+
 def build_network_2(n_output):
     model=Sequential()
 
@@ -38,16 +42,13 @@ def build_network_2(n_output):
 
 
 def main():
-    dataset = read_data()
+    d = read_data()
 
-    sgd = optimizers.SGD(lr=0.01)
-    loss = tf.keras.losses.CategoricalCrossentropy()
-
-    # create race class
-    model = build_network_2(7)
-    model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    history=model.fit(dataset['train_norm'],dataset['race_t_labels'],validation_data=(dataset['val_norm'],dataset['race_v_labels']),batch_size=32,epochs=100, verbose=True)
-
+    lr = 0.05
+    batch_size = 128
+    epochs = 100
+    
+    run_all_models(build_network_2, 'task_2', d, lr , batch_size, epochs)
 
 if __name__=="__main__":
     main()

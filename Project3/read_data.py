@@ -27,6 +27,15 @@ def read_imgs(path):
 
     return np.asarray(images)
 
+def encode(labels):
+
+    codes, _ = labels.factorize()
+    encoded_labels = np.zeros((len(codes), len(labels.unique())))
+    for i, c in enumerate(codes):
+        encoded_labels[i,c] = 1
+
+    return encoded_labels
+
 def read_data():
     
     train = read_imgs('./project3_COSC525/train/')
@@ -42,56 +51,36 @@ def read_data():
     train_norm = train_norm.reshape(-1,32,32,1)
     val_norm = val_norm.reshape(-1,32,32,1)
 
+    #get labels
     train_labels = pd.read_csv('project3_COSC525/fairface_label_train.csv')
     val_labels = pd.read_csv('project3_COSC525/fairface_label_val.csv')
 
+    #get label labels
     age_classes = train_labels.age.unique()
     gender_classes = train_labels.gender.unique()
     race_classes = train_labels.race.unique()
 
-    #training labels
-    codes, _ = train_labels.age.factorize()
-    age_t_labels = np.zeros((len(codes), age_classes.size))
-    for i, c in enumerate(codes):
-        age_t_labels[i,c] = 1
+    #encode training labels
+    age_t_labels = encode(train_labels.age)
+    gender_t_labels = encode(train_labels.gender)
+    race_t_labels = encode(train_labels.race)
 
-    codes, _ = train_labels.gender.factorize()
-    gender_t_labels = np.zeros((len(codes), gender_classes.size))
-    for i, c in enumerate(codes):
-        gender_t_labels[i,c] = 1
-    
-    codes, _ = train_labels.race.factorize()
-    race_t_labels = np.zeros((len(codes), race_classes.size))
-    for i, c in enumerate(codes):
-        race_t_labels[i,c] = 1
+    #encode validation labels
+    age_v_labels = encode(val_labels.age)
+    gender_v_labels = encode(val_labels.gender)
+    race_v_labels = encode(val_labels.race)
 
-    #validation labels
-    codes, _ = val_labels.age.factorize()
-    age_v_labels = np.zeros((len(codes), age_classes.size))
-    for i, c in enumerate(codes):
-        age_v_labels[i,c] = 1
-
-    codes, _ = val_labels.gender.factorize()
-    gender_v_labels = np.zeros((len(codes), gender_classes.size))
-    for i, c in enumerate(codes):
-        gender_v_labels[i,c] = 1
-    
-    codes, _ = val_labels.race.factorize()
-    race_v_labels = np.zeros((len(codes), race_classes.size))
-    for i, c in enumerate(codes):
-        race_v_labels[i,c] = 1
-
-
-    dataset = {'train_norm' : train_norm, 
-    'val_norm' : val_norm, 
-    'age_t_labels' : age_t_labels, 
-    'gender_t_labels' : gender_t_labels, 
-    'race_t_labels' : race_t_labels, 
-    'age_v_labels' : age_v_labels,  
-    'gender_v_labels' : gender_v_labels,  
-    'race_v_labels' : race_v_labels, 
-    'age_classes' : age_classes, 
-    'gender_classes' : gender_classes, 
-    'race_classes' : race_classes}
+    dataset = {
+        'train' : train_norm, 
+        'val' : val_norm, 
+        'age_t_labels' : age_t_labels, 
+        'gender_t_labels' : gender_t_labels, 
+        'race_t_labels' : race_t_labels, 
+        'age_v_labels' : age_v_labels,  
+        'gender_v_labels' : gender_v_labels,  
+        'race_v_labels' : race_v_labels, 
+        'age_classes' : age_classes, 
+        'gender_classes' : gender_classes, 
+        'race_classes' : race_classes}
 
     return dataset
