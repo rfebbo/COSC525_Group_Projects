@@ -44,11 +44,13 @@ def build_network_2(n_output):
 def main():
     d = read_data()
 
-    lr = 0.05
+    lrs = [0.01, 0.05, 0.1]
+    momentum = 0.9
     batch_size = 128
     epochs = 100
-    
-    run_all_models(build_network_2, 'task_2', d, lr , batch_size, epochs)
+
+    for lr in lrs:
+        run_all_models(build_network_2, 'task_2', d, lr, momentum, batch_size, epochs)
 
 if __name__=="__main__":
     main()
