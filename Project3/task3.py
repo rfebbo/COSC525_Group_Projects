@@ -49,8 +49,8 @@ def build_network_3(n_output):
 def test_network_3():
     d = read_data()
 
-    lrs = [0.05]        
-    #lrs = [0.01,s 0.05, 0.1]
+    # lrs = [0.05]        
+    lrs = [0.01, 0.05, 0.1]
     momentum = 0.9
     batch_size =  128
     epochs = 100
