@@ -3,6 +3,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras import layers
 from tensorflow.keras import optimizers
 import pandas as pd
+import numpy as np
 import tensorflow as tf
 
 def run_model(builder, name, n_classes, lr, momentum, x, y, val_data, batch_size, epochs):
@@ -10,12 +11,20 @@ def run_model(builder, name, n_classes, lr, momentum, x, y, val_data, batch_size
     print('running ' + name)
     sgd = optimizers.SGD(lr=lr,momentum=momentum)
     loss = tf.keras.losses.CategoricalCrossentropy()
+    
+    callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
+    callbacks = [callback]
 
     model = builder(n_classes)
     model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    history=model.fit(x,y,validation_data=val_data,batch_size=batch_size,epochs=epochs, verbose=True)
+    history=model.fit(x,y,validation_data=val_data,batch_size=batch_size,epochs=epochs, verbose=True,callbacks=callbacks)
 
-    pd.DataFrame.from_dict(history.history,orient='index').to_csv('./saved_runs/'+name + '(lr_' + str(lr) + ')(batch_' + str(batch_size) + ')(epoch_' + str(epochs) + ')' + '.csv')
+    predictions = model.predict(val_data[0],128,1)
+    with open('predictions/'+name+'preditions', 'wb') as f:
+        np.save(f,predictions)
+
+
+    pd.DataFrame.from_dict(history.history,orient='index').to_csv('./saved_runs/'+name + '(lr_' + str(lr) + ')(batch_' + str(batch_size) + ')(epoch_' + str(len(history.history['loss'])) + ')' + '.csv')
 
 def run_all_models(builder, name, d, lr, momentum, batch_size, epochs):
     # run race network

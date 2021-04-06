@@ -31,7 +31,7 @@ else:
 from model_runner import run_all_models
 
 
-def build_network_3(n_output):
+def build_model_3(n_output):
     model=Sequential()
 
     # Add convolutional layers, flatten, and fully connected layer
@@ -46,17 +46,18 @@ def build_network_3(n_output):
     return model
 
 
-def test_network_3():
+def test_model_3():
     d = read_data()
 
-    # lrs = [0.05]        
-    lrs = [0.01, 0.05, 0.1]
+       
+    # lrs = [0.01, 0.05, 0.1]
+    lrs = [0.01]
     momentum = 0.9
     batch_size =  128
-    epochs = 100
+    epochs = 15
 
     for lr in lrs:
-        run_all_models(build_network_3, 'task_3', d, lr, momentum, batch_size, epochs)
+        run_all_models(build_model_3, 'task_3', d, lr, momentum, batch_size, epochs)
 
 if __name__=="__main__":
-    test_network_3()
+    test_model_3()

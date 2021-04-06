@@ -27,7 +27,7 @@ else:
 from model_runner import run_all_models
 
 
-def build_network_1(n_output):
+def build_model_1(n_output):
     model=Sequential()
 
     # Add fully connected layer
@@ -39,16 +39,17 @@ def build_network_1(n_output):
 
     return model
 
-def test_network_1():
+def test_model_1():
     d = read_data()
 
-    lrs = [0.01, 0.05, 0.1]
+    # lrs = [0.01, 0.05, 0.1]
+    lrs = [0.05]
     momentum = 0.9
     batch_size = 128
     epochs = 100
     for lr in lrs:
-        run_all_models(build_network_1, 'Task_1', d, lr, momentum, batch_size, epochs)
+        run_all_models(build_model_1, 'Task_1', d, lr, momentum, batch_size, epochs)
 
 
 if __name__=="__main__":
-    test_network_1()
+    test_model_1()

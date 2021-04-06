@@ -38,14 +38,23 @@ def run_model_4(builder, name, n_classes, lr, momentum, x, y, val_data, batch_si
     sgd = optimizers.SGD(lr=lr,momentum=momentum)
     loss = tf.keras.losses.CategoricalCrossentropy()
 
+    callback = tf.keras.callbacks.EarlyStopping(monitor='val_age_loss', patience=3)
+    callbacks = [callback]
+
     model = builder(n_classes)
     model.compile(loss=loss, optimizer=sgd, metrics=['accuracy'])
-    history=model.fit(x,y,validation_data=val_data,batch_size=batch_size,epochs=epochs, verbose=True)
+    history=model.fit(x,y,validation_data=val_data,batch_size=batch_size,epochs=epochs, verbose=True, callbacks=callbacks)
 
-    pd.DataFrame.from_dict(history.history,orient='index').to_csv('./saved_runs/'+name + '(lr_' + str(lr) + ')(batch_' + str(batch_size) + ')(epoch_' + str(epochs) + ')' + '.csv')
+    race_predictions, age_predictions = model.predict(val_data[0],128,1)
+    with open('predictions/'+name+'agepreditions', 'wb') as f:
+        np.save(f,age_predictions)
+
+    with open('predictions/'+name+'racepreditions', 'wb') as f:
+        np.save(f,race_predictions)
+    pd.DataFrame.from_dict(history.history,orient='index').to_csv('./saved_runs/'+name + '(lr_' + str(lr) + ')(batch_' + str(batch_size) + ')(epoch_' + str(len(history.history['age_loss'])) + ')' + '.csv')
 
 
-def build_network_4(n_output):
+def build_model_4(n_output):
     # model=Sequential()
 
     # Add convolutional layers, flatten, and fully connected layer
@@ -63,21 +72,21 @@ def build_network_4(n_output):
     return model
 
 
-def test_network_4():
+def test_model_4():
     d = read_data()
 
-    # lrs = [0.05]
-    lrs = [0.01, 0.1]
+    # lrs = [0.01, 0.05, 0.1]
+    lrs = [0.01]
     momentum = 0.9
     batch_size =  128
-    epochs = 100
+    epochs = 50
 
     y = {'race' : d['race_t_labels'], 'age' : d['age_t_labels']}
     n_classes = [len(d['race_classes']), len(d['age_classes'])]
     val_data = (d['val'],[d['race_v_labels'], d['age_v_labels']])
 
     for lr in lrs:
-        run_model_4(build_network_4, 'task_4', n_classes, lr, momentum, d['train'], y, val_data, batch_size, epochs)
+        run_model_4(build_model_4, 'task_4', n_classes, lr, momentum, d['train'], y, val_data, batch_size, epochs)
 
 if __name__=="__main__":
-    test_network_4()
+    test_model_4()
