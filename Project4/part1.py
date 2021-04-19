@@ -1,8 +1,8 @@
 from numpy import unique, asarray
 
-def create_sequences(window_size, stride):
+def create_sequences(file, window_size, stride):
     lines = ''
-    with open('beatles.txt') as f:
+    with open(file) as f:
         for line in f:
             lines += line
 
@@ -15,7 +15,7 @@ def create_sequences(window_size, stride):
         if(c + window_size < len(lines)):
             sequences.append(lines[c:c+window_size+1:1])
 
-    with open(f'sequences{stride}_{window_size}','w') as f:
+    with open(f'sequences{window_size}_{stride}','w') as f:
         for line in sequences:
             f.write(line + '\n')
 
